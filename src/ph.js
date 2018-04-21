@@ -1,12 +1,44 @@
+var Gravity = class {
+  // mobile : object with attribute mass : number
+  // vector : Vector
+  constructor(mobile, vector = new Vector()) {
+    // physic
+    this.mobile = mobile;
+    this.vector = vector;
+    // style
+    this.stroke = color(100, 150, 100);
+    this.strokeWeight = 1;
+  }
+
+  getForce() {
+    return this.vector.scale(this.mobile.mass);
+  }
+
+  apply() {
+    this.mobile.applyForce(this.getForce());
+  }
+
+  draw() {
+    strokeWeight(this.strokeWeight);
+    stroke(this.stroke);
+    var f_end = this.getForce().add(this.mobile.pos);
+    line(this.mobile.pos.x, this.mobile.pos.y, f_end.x, f_end.y);
+  }
+}
+
 var Spring = class {
   // mobile : object with attribute pos : Vector
   // attachement : Vector
   // tension : number
   constructor(mobile, attachment = new Vector(), length, tension = 1) {
+    // physic
     this.attachment = attachment;
     this.mobile = mobile;
     this.length = length;
     this.tension = tension;
+    // style
+    this.stroke = color(150, 100, 100);
+    this.strokeWeight = 2;
   }
 
   // return : Vector
@@ -21,8 +53,8 @@ var Spring = class {
   }
 
   draw() {
-    strokeWeight(2);
-    stroke(150, 100, 100);
+    strokeWeight(this.strokeWeight);
+    stroke(this.stroke);
     line(this.attachment.x, this.attachment.y, this.mobile.pos.x, this.mobile.pos.y);
   }
 }
