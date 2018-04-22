@@ -1,11 +1,60 @@
+var PhysicEnvironment = class {
+  constructor() {
+    this.mobiles = [];
+    this.forces = [];
+    this.last_draw_ms = 0;
+  }
+
+  draw() {
+    // apply forces
+    this.forces.forEach(function(force) {
+      if (force.enabled) {
+        force.apply();
+      }
+    });
+
+    // animate mobiles
+    var current_ms = millis();
+    var d_ms = current_ms - this.last_draw_ms;
+    this.last_draw_ms = current_ms;
+    var d_s = d_ms / 1000;
+    if (d_s > 0.1) {
+      print("warning : time lost");
+      d_s = 0.1;
+    }
+    this.mobiles.forEach(function(mobile) {
+      mobile.animate(d_s);
+    });
+
+    // draw forces
+    this.forces.forEach(function(force) {
+      if (force.enabled && force.visible) {
+        force.draw();
+      }
+    });
+
+    // draw mobiles
+    this.mobiles.forEach(function(mobile) {
+      if (mobile.visible) {
+        mobile.draw();
+      }
+    });
+  }
+}
+
+
+// ---- Forces ----
+
 var Gravity = class {
   // mobile : object with attribute mass : number
   // vector : Vector
   constructor(mobile, vector = new Vector()) {
     // physic
+    this.enabled = true;
     this.mobile = mobile;
     this.vector = vector;
     // style
+    this.visible = true;
     this.stroke = color(100, 150, 100);
     this.strokeWeight = 1;
   }
@@ -19,10 +68,40 @@ var Gravity = class {
   }
 
   draw() {
-    strokeWeight(this.strokeWeight);
-    stroke(this.stroke);
-    var f_end = this.getForce().add(this.mobile.pos);
-    line(this.mobile.pos.x, this.mobile.pos.y, f_end.x, f_end.y);
+    // strokeWeight(this.strokeWeight);
+    // stroke(this.stroke);
+    // var f_end = this.getForce().add(this.mobile.pos);
+    // line(this.mobile.pos.x, this.mobile.pos.y, f_end.x, f_end.y);
+  }
+}
+
+var Friction = class {
+  // mobile : object with attribute mass : number
+  // intensity : number
+  constructor(mobile, intensity) {
+    // physic
+    this.enabled = true;
+    this.mobile = mobile;
+    this.intensity = intensity;
+    // style
+    this.visible = true;
+    this.stroke = color(100, 150, 100);
+    this.strokeWeight = 1;
+  }
+
+  getForce() {
+    return this.mobile.spd.scale(-1 * this.intensity);
+  }
+
+  apply() {
+    this.mobile.applyForce(this.getForce());
+  }
+
+  draw() {
+    // strokeWeight(this.strokeWeight);
+    // stroke(this.stroke);
+    // var f_end = this.getForce().add(this.mobile.pos);
+    // line(this.mobile.pos.x, this.mobile.pos.y, f_end.x, f_end.y);
   }
 }
 
@@ -32,11 +111,13 @@ var Spring = class {
   // tension : number
   constructor(mobile, attachment = new Vector(), length, tension = 1) {
     // physic
+    this.enabled = true;
     this.attachment = attachment;
     this.mobile = mobile;
     this.length = length;
     this.tension = tension;
     // style
+    this.visible = true;
     this.stroke = color(150, 100, 100);
     this.strokeWeight = 2;
   }
@@ -59,16 +140,19 @@ var Spring = class {
   }
 }
 
+
+// ---- Mobiles ----
+
 var Ball = class {
   // pos : Vector
   constructor(pos = new Vector(), spd = new Vector()) {
+    // physic
     this.pos = pos;
     this.spd = spd;
-
     this.mass = 0.5;
-
     this.f_accumulator = new Vector(0, 0);
-
+    // style
+    this.visible = true;
     this.past_max_length = 100;
     this.past_dots = [];
   }
@@ -80,10 +164,6 @@ var Ball = class {
 
   // s_time : number
   animate(s_time) {
-    if (s_time > 0.1) {
-      print("warning : time overflow");
-      s_time = 0.1;
-    }
     var acc = this.f_accumulator.scale(1/this.mass);
     this.f_accumulator.set(0, 0);
 
