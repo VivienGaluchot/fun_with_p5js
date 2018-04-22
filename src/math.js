@@ -1,4 +1,4 @@
-var Vector = class {
+class Vector {
   constructor(x = 0, y = 0){
     this.set(x, y);
   }

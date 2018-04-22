@@ -1,4 +1,4 @@
-var PhysicEnvironment = class {
+class PhysicEnvironment {
   constructor() {
     this.mobiles = [];
     this.forces = [];
@@ -45,18 +45,37 @@ var PhysicEnvironment = class {
 
 // ---- Forces ----
 
-var Gravity = class {
+class Force {
+  constructor() {
+    // physic
+    this.enabled = true;
+    // style
+    this.visible = true;
+    this.stroke = color(75);
+    this.strokeWeight = 1;
+  }
+
+  getForce() {
+    // to implement
+  }
+
+  apply() {
+    // to implement
+  }
+
+  draw() {
+    // to implement
+  }
+}
+
+class Gravity extends Force {
   // mobile : object with attribute mass : number
   // vector : Vector
   constructor(mobile, vector = new Vector()) {
+    super();
     // physic
-    this.enabled = true;
     this.mobile = mobile;
     this.vector = vector;
-    // style
-    this.visible = true;
-    this.stroke = color(100, 150, 100);
-    this.strokeWeight = 1;
   }
 
   getForce() {
@@ -68,25 +87,21 @@ var Gravity = class {
   }
 
   draw() {
-    // strokeWeight(this.strokeWeight);
-    // stroke(this.stroke);
-    // var f_end = this.getForce().add(this.mobile.pos);
-    // line(this.mobile.pos.x, this.mobile.pos.y, f_end.x, f_end.y);
+    strokeWeight(this.strokeWeight);
+    stroke(this.stroke);
+    var f_end = this.getForce().add(this.mobile.pos);
+    line(this.mobile.pos.x, this.mobile.pos.y, f_end.x, f_end.y);
   }
 }
 
-var Friction = class {
+class Friction extends Force {
   // mobile : object with attribute mass : number
   // intensity : number
   constructor(mobile, intensity) {
+    super();
     // physic
-    this.enabled = true;
     this.mobile = mobile;
     this.intensity = intensity;
-    // style
-    this.visible = true;
-    this.stroke = color(100, 150, 100);
-    this.strokeWeight = 1;
   }
 
   getForce() {
@@ -98,27 +113,26 @@ var Friction = class {
   }
 
   draw() {
-    // strokeWeight(this.strokeWeight);
-    // stroke(this.stroke);
-    // var f_end = this.getForce().add(this.mobile.pos);
-    // line(this.mobile.pos.x, this.mobile.pos.y, f_end.x, f_end.y);
+    strokeWeight(this.strokeWeight);
+    stroke(this.stroke);
+    var f_end = this.getForce().add(this.mobile.pos);
+    line(this.mobile.pos.x, this.mobile.pos.y, f_end.x, f_end.y);
   }
 }
 
-var Spring = class {
+class Spring extends Force {
   // mobile : object with attribute pos : Vector
   // attachement : Vector
   // tension : number
   constructor(mobile, attachment = new Vector(), length, tension = 1) {
+    super();
     // physic
-    this.enabled = true;
     this.attachment = attachment;
     this.mobile = mobile;
     this.length = length;
     this.tension = tension;
     // style
-    this.visible = true;
-    this.stroke = color(150, 100, 100);
+    this.stroke = color(75);
     this.strokeWeight = 2;
   }
 
@@ -140,19 +154,68 @@ var Spring = class {
   }
 }
 
+class SpringMobileMobile extends Force {
+  // mobileA : object with attribute pos : Vector
+  // mobileB : object with attribute pos : Vector
+  // tension : number
+  constructor(mobileA, mobileB, length, tension = 1) {
+    super();
+    // physic
+    this.mobileA = mobileA;
+    this.mobileB = mobileB;
+    this.length = length;
+    this.tension = tension;
+    // style
+    this.stroke = color(75);
+    this.strokeWeight = 2;
+  }
+
+  // return : Vector
+  getForce() {
+    var delta_pos = this.mobileB.pos.sub(this.mobileA.pos);
+    var delta_length = delta_pos.length() - this.length;
+    return delta_pos.normalized().scale(delta_length * this.tension);
+  }
+
+  apply() {
+    var f = this.getForce();
+    this.mobileA.applyForce(f);
+    this.mobileB.applyForce(f.scale(-1));
+  }
+
+  draw() {
+    strokeWeight(this.strokeWeight);
+    stroke(this.stroke);
+    line(this.mobileA.pos.x, this.mobileA.pos.y, this.mobileB.pos.x, this.mobileB.pos.y);
+  }
+}
+
+class RigidLink extends SpringMobileMobile {
+  constructor(mobileA, mobileB) {
+    var length = mobileA.pos.sub(mobileB.pos).length();
+    super(mobileA, mobileB, length, 1000);
+  }
+}
+
 
 // ---- Mobiles ----
 
-var Ball = class {
+class Ball {
   // pos : Vector
   constructor(pos = new Vector(), spd = new Vector()) {
     // physic
     this.pos = pos;
     this.spd = spd;
-    this.mass = 0.5;
+    this.mass = 1;
+    this.radius = 10;
     this.f_accumulator = new Vector(0, 0);
     // style
     this.visible = true;
+    this.fill = color(220);
+    this.stroke = color(100);
+    this.strokeWeight = 2;
+    this.past_stroke = color(100, 100, 150);
+    this.past_strokeWeight = 1;
     this.past_max_length = 100;
     this.past_dots = [];
   }
@@ -181,14 +244,14 @@ var Ball = class {
     for (var i = 1; i < this.past_dots.length; i++) {
       var a = this.past_dots[i-1];
       var b = this.past_dots[i];
-      strokeWeight(1);
-      stroke(100, 100, 150);
+      strokeWeight(this.past_strokeWeight);
+      stroke(this.past_stroke);
       line(a.x, a.y, b.x, b.y);
     }
 
-    strokeWeight(2);
-    fill(220);
-    stroke(150, 100, 100);
-    ellipse(this.pos.x, this.pos.y, 20, 20);
+    strokeWeight(this.strokeWeight);
+    fill(this.fill);
+    stroke(this.stroke);
+    ellipse(this.pos.x, this.pos.y, this.radius * 2, this.radius * 2);
   }
 }
