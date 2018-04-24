@@ -45,7 +45,7 @@ class PhysicEnvironment {
 
 // ---- Forces ----
 
-class Force {
+class AbstractForce {
   constructor() {
     // physic
     this.enabled = true;
@@ -54,139 +54,117 @@ class Force {
     this.stroke = color(75);
     this.strokeWeight = 1;
   }
-
-  getForce() {
-    // to implement
-  }
-
-  apply() {
-    // to implement
-  }
-
-  draw() {
-    // to implement
-  }
 }
 
-class Gravity extends Force {
-  // mobile : object with attribute mass : number
-  // vector : Vector
-  constructor(mobile, vector = new Vector()) {
+// A local force apply on a single mobile
+class LocalForce extends AbstractForce {
+  // mobile : object
+  //         attributes pos : vector, spd : vector, mass : number
+  //         function applyForce(vector)
+  constructor(mobile) {
     super();
     // physic
     this.mobile = mobile;
+  }
+
+  // to override
+  getForce() {
+    return new Vector();
+  }
+
+  apply() {
+    this.mobile.applyForce(this.getForce());
+  }
+
+  draw() {
+    strokeWeight(this.strokeWeight);
+    stroke(this.stroke);
+    var f = this.getForce();
+    var f_end = f.add(this.mobile.pos);
+    line(this.mobile.pos.x, this.mobile.pos.y, f_end.x, f_end.y);
+    var arrow_l = 5;
+    var arrow_seg_end1 = f.normalize().scale_inplace(arrow_l).rotate_inplace(3 * PI/4).add(f_end);
+    var arrow_seg_end2 = f.normalize().scale_inplace(arrow_l).rotate_inplace(-3 * PI/4).add(f_end);
+    line(f_end.x, f_end.y, arrow_seg_end1.x, arrow_seg_end1.y);
+    line(f_end.x, f_end.y, arrow_seg_end2.x, arrow_seg_end2.y);
+  }
+}
+
+class LocalGravity extends LocalForce {
+  // mobile : object with attribute mass : number
+  // vector : Vector
+  constructor(mobile, vector = new Vector()) {
+    super(mobile);
+    // physic
     this.vector = vector;
+    // style
+    this.stroke = color(50, 100, 200);
   }
 
   getForce() {
     return this.vector.scale(this.mobile.mass);
   }
-
-  apply() {
-    this.mobile.applyForce(this.getForce());
-  }
-
-  draw() {
-    strokeWeight(this.strokeWeight);
-    stroke(this.stroke);
-    var f_end = this.getForce().add(this.mobile.pos);
-    line(this.mobile.pos.x, this.mobile.pos.y, f_end.x, f_end.y);
-  }
 }
 
-class Friction extends Force {
+class LocalFriction extends LocalForce {
   // mobile : object with attribute mass : number
   // intensity : number
   constructor(mobile, intensity) {
-    super();
+    super(mobile);
     // physic
-    this.mobile = mobile;
     this.intensity = intensity;
+    // style
+    this.stroke = color(150, 200, 100);
   }
 
   getForce() {
     return this.mobile.spd.scale(-1 * this.intensity);
   }
-
-  apply() {
-    this.mobile.applyForce(this.getForce());
-  }
-
-  draw() {
-    strokeWeight(this.strokeWeight);
-    stroke(this.stroke);
-    var f_end = this.getForce().add(this.mobile.pos);
-    line(this.mobile.pos.x, this.mobile.pos.y, f_end.x, f_end.y);
-  }
 }
 
-class Spring extends Force {
+class Spring extends LocalForce {
   // mobile : object with attribute pos : Vector
-  // attachement : Vector
+  // attachement : object with attribute pos : Vector
   // tension : number
-  constructor(mobile, attachment = new Vector(), length, tension = 1) {
-    super();
+  constructor(mobile, attachment = new Localised(), length, tension = 1) {
+    super(mobile);
     // physic
     this.attachment = attachment;
-    this.mobile = mobile;
     this.length = length;
     this.tension = tension;
     // style
-    this.stroke = color(75);
-    this.strokeWeight = 2;
+    this.stroke = color(200, 100, 150);
   }
 
   // return : Vector
   getForce() {
-    var delta_pos = this.attachment.sub(this.mobile.pos);
+    var delta_pos = this.attachment.pos.sub(this.mobile.pos);
     var delta_length = delta_pos.length() - this.length;
-    return delta_pos.normalized().scale(delta_length * this.tension);
+    return delta_pos.normalize().scale(delta_length * this.tension);
   }
 
-  apply() {
-    this.mobile.applyForce(this.getForce());
-  }
-
-  draw() {
-    strokeWeight(this.strokeWeight);
-    stroke(this.stroke);
-    line(this.attachment.x, this.attachment.y, this.mobile.pos.x, this.mobile.pos.y);
-  }
+  // draw() {
+  //   strokeWeight(this.strokeWeight);
+  //   stroke(this.stroke);
+  //   line(this.attachment.pos.x, this.attachment.pos.y, this.mobile.pos.x, this.mobile.pos.y);
+  // }
 }
 
-class SpringMobileMobile extends Force {
-  // mobileA : object with attribute pos : Vector
-  // mobileB : object with attribute pos : Vector
-  // tension : number
+class SpringMobileMobile extends AbstractForce {
   constructor(mobileA, mobileB, length, tension = 1) {
     super();
-    // physic
-    this.mobileA = mobileA;
-    this.mobileB = mobileB;
-    this.length = length;
-    this.tension = tension;
-    // style
-    this.stroke = color(75);
-    this.strokeWeight = 2;
-  }
-
-  // return : Vector
-  getForce() {
-    var delta_pos = this.mobileB.pos.sub(this.mobileA.pos);
-    var delta_length = delta_pos.length() - this.length;
-    return delta_pos.normalized().scale(delta_length * this.tension);
+    this.forceAtoB = new Spring(mobileB, mobileA, length, tension);
+    this.forceBtoA = new Spring(mobileA, mobileB, length, tension);
   }
 
   apply() {
-    var f = this.getForce();
-    this.mobileA.applyForce(f);
-    this.mobileB.applyForce(f.scale(-1));
+    this.forceAtoB.apply();
+    this.forceBtoA.apply();
   }
 
   draw() {
-    strokeWeight(this.strokeWeight);
-    stroke(this.stroke);
-    line(this.mobileA.pos.x, this.mobileA.pos.y, this.mobileB.pos.x, this.mobileB.pos.y);
+    this.forceAtoB.draw();
+    this.forceBtoA.draw();
   }
 }
 
@@ -240,7 +218,6 @@ class Ball {
   }
 
   draw() {
-
     for (var i = 1; i < this.past_dots.length; i++) {
       var a = this.past_dots[i-1];
       var b = this.past_dots[i];

@@ -15,20 +15,17 @@ function setup() {
   ball1.past_stroke = color(100, 100, 150);
   env.mobiles.push(ball1);
 
-  var gravity = new Gravity(ball1, new Vector(0, 100));
-  gravity.visible = false;
+  var gravity = new LocalGravity(ball1, new Vector(0, 100));
   env.forces.push(gravity);
 
-  var friction = new Friction(ball1, 0.1);
-  friction.visible = false;
+  var friction = new LocalFriction(ball1, 0.1);
   env.forces.push(friction);
 
-  env.forces.push(new Spring(ball1, new Vector( width / 3, height / 2), 150, 10));
-  env.forces.push(new Spring(ball1, new Vector( 2 * width / 3, height / 2), 150, 10));
+  env.forces.push(new Spring(ball1, new Localised(new Vector( width / 3, height / 2)), 150, 10));
+  env.forces.push(new Spring(ball1, new Localised(new Vector( 2 * width / 3, height / 2)), 150, 10));
 
-  mouseForce = new Spring(ball1, new Vector(), 0, 5);
+  mouseForce = new Spring(ball1, new Localised(), 0, 5);
   mouseForce.enabled = false;
-  mouseForce.stroke = color(100);
   mouseForce.strokeWeight = 1;
   env.forces.push(mouseForce);
 
@@ -39,12 +36,10 @@ function setup() {
   ball2.past_stroke = color(100, 150, 100);
   env.mobiles.push(ball2);
 
-  var gravity2 = new Gravity(ball2, new Vector(0, 100));
-  gravity2.visible = false;
+  var gravity2 = new LocalGravity(ball2, new Vector(0, 100));
   env.forces.push(gravity2);
 
-  var friction2 = new Friction(ball2, 0.1);
-  friction2.visible = false;
+  var friction2 = new LocalFriction(ball2, 0.1);
   env.forces.push(friction2);
 
   var smm12 = new SpringMobileMobile(ball1, ball2, ball_space, 10);
@@ -61,12 +56,10 @@ function setup() {
   ball3.past_stroke = color(150, 100, 100);
   env.mobiles.push(ball3);
 
-  var gravity3 = new Gravity(ball3, new Vector(0, 100));
-  gravity3.visible = false;
+  var gravity3 = new LocalGravity(ball3, new Vector(0, 100));
   env.forces.push(gravity3);
 
-  var friction3 = new Friction(ball3, 0.1);
-  friction3.visible = false;
+  var friction3 = new LocalFriction(ball3, 0.1);
   env.forces.push(friction3);
 
   var smm23 = new SpringMobileMobile(ball2, ball3, ball_space, 5);
@@ -78,7 +71,7 @@ function draw() {
 
   if (mouseIsPressed) {
     var mouse = new Vector(mouseX, mouseY);
-    mouseForce.attachment = mouse;
+    mouseForce.attachment.pos = mouse;
     mouseForce.enabled = true;
   } else {
     mouseForce.enabled = false;
