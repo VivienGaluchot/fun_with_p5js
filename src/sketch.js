@@ -3,6 +3,7 @@ var mouseForce;
 
 function setup() {
   createCanvas(600, 600);
+  frameRate(60);
 
   env = new PhysicEnvironment();
 
