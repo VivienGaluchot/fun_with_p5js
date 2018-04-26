@@ -98,3 +98,128 @@ class Localised {
     this.pos = pos;
   }
 }
+
+class Matrix {
+  constructor(rows, cols) {
+    this.rows = rows;
+    this.cols = cols;
+    this.values = [];
+    for (var row = 0; row < this.rows; row++) {
+      this.values[row] = [];
+      for (var col = 0; col < this.cols; col++) {
+        this.values[row][col] = 0;
+      }
+    }
+  }
+
+  // f : function(currentValue, row, col), return : number to update
+  forEach(f) {
+  for (var row = 0; row < this.rows; row++) {
+      for (var col = 0; col < this.cols; col++) {
+        this.values[row][col] = f(this.values[row][col], row, col);
+      }
+    }
+  }
+
+  // row : number
+  // col : number
+  // value : number
+  setValue(value, row, col) {
+    if (row >= 0 && row < this.rows && col >= 0 && col < this.cols) {
+      this.values[row][col] = value;
+    }
+  }
+
+  // row : number
+  // col : number
+  // return : number or undefined
+  getValue(row, col) {
+    if (row >= 0 && row < this.rows && col >= 0 && col < this.cols) {
+      return this.values[row][col];
+    } else {
+      return undefined;
+    }
+  }
+
+  print() {
+    this.values.forEach(function(row) {
+      var str = "";
+      row.forEach(function(v) {
+        str += v + " ";
+      });
+      print(str);
+    });
+  }
+
+  // other : Matrix
+  // return : Matrix (this * other)
+  product(other) {
+    if (this.cols == other.rows) {
+      var result = new Matrix(this.rows, other.cols);
+      for (var row = 0; row < result.rows; row++) {
+        for (var col = 0; col < result.cols; col++) {
+          var value = 0;
+          for (var i = 0; i < this.cols; i++) {
+            value += this.values[row][i] * other.values[i][col];
+          }
+          result.values[row][col] = value;
+        }
+      }
+      return result;
+    } else {
+      return undefined;
+    }
+  }
+}
+
+class LinearTransformation {
+  constructor() {
+    this.matrix = new Matrix(2, 2);
+    this.matrix.forEach(function(v, r, c) {
+      return (r == c) ? 1 : 0;
+    });
+  }
+
+  // m : Matrix
+  push(m) {
+    if (m.rows == this.matrix.rows && m.cols == this.matrix.cols) {
+      this.matrix = this.matix.product(m);
+    }
+  }
+
+  // n : number
+  scale(n) {
+    var matrix = new Matrix(2, 2);
+    matrix.forEach(function(v, r, c) {
+      return (r == c) ? n : 0;
+    });
+    this.push(matrix);
+  }
+
+  // a : angle in randiant
+  rotate(a) {
+    var matrix = new Matrix(2, 2);
+    matrix.setValue(0, 0, cos(a));
+    matrix.setValue(0, 1, -sin(a));
+    matrix.setValue(1, 0, sin(a));
+    matrix.setValue(1, 1, cos(a));
+    this.push(matrix);
+  }
+
+  // v : Vector
+  translate(v) {
+
+  }
+
+  // v : Vector
+  // return : Vector
+  appliTransformation(v) {
+
+  }
+
+  // v : Vector
+  // return : Vector
+  appliTransformationInverse(v) {
+
+  }
+}
