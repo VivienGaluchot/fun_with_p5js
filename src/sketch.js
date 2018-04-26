@@ -2,6 +2,7 @@ var demo;
 
 function setup() {
   createCanvas(windowWidth - 10, windowHeight - 10);
+  frameRate(60);
   demo = new Demo();
 }
 
