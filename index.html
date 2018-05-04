@@ -1,17 +1,54 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0>
-    <style> body {padding: 0; margin: 0;} </style>
-    <script src="p5/p5.min.js"></script>
-    <script src="p5/addons/p5.dom.min.js"></script>
-    <script src="p5/addons/p5.sound.min.js"></script>
-    <script src="src/math.js"></script>
-    <script src="src/ph.js"></script>
-    <script src="src/demo.js"></script>
-    <script src="src/sketch.js"></script>
-  </head>
-  <body>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0>
+
+  <style type="text/css">
+  html, body {
+    background-color:  #f0f0f0;
+    color: #0f0f0f;
+    margin: 0;
+    height: 100%;
+    align-items: center;
+    text-align: center;
+    font-family: monospace;
+  }
+  h1 {
+    margin: 0;
+    font-size: large;
+    line-height: 3em;
+    z-index: 1;
+  }
+  .centered {
+    margin: 0;
+    display: flex;
+    /* This centers our sketch horizontally. */
+    justify-content: center;
+    /* This centers our sketch vertically. */
+    align-items: center;
+  }
+  #sketch-holder {
+    height: 700px;
+  }
+  #toolbar {
+    padding: 20px;
+  }
+  </style>
+
+  <script src="p5/p5.min.js"></script>
+  <script src="p5/addons/p5.dom.min.js"></script>
+  <script src="p5/addons/p5.sound.min.js"></script>
+  <script src="src/math.js"></script>
+  <script src="src/ph.js"></script>
+  <script src="src/demo.js"></script>
+  <script src="src/sketch.js"></script>
+
+</head>
+<body>
+  <h1>fun_width_p5js</h1>
+  <p>Dev project, physic simulation environment</p>
+  <div id="sketch-holder" class="centered"></div>
+  <div id="toolbar" class="centered"></div>
+</body>
 </html>

@@ -3,6 +3,9 @@ class PhysicEnvironment {
     this.mobiles = [];
     this.forces = [];
     this.last_draw_ms = 0;
+
+    // style
+    this.draw_forces = true;
   }
 
   draw() {
@@ -27,9 +30,16 @@ class PhysicEnvironment {
     });
 
     // draw forces
+    if (this.draw_forces) {
+      this.forces.forEach(function(force) {
+        if (force.enabled && force.visible) {
+          force.draw();
+        }
+      });
+    }
     this.forces.forEach(function(force) {
       if (force.enabled && force.visible) {
-        force.draw();
+        force.drawSymbol();
       }
     });
 
@@ -54,6 +64,8 @@ class AbstractForce {
     this.stroke = color(75);
     this.strokeWeight = 1;
   }
+
+  drawSymbol() {}
 }
 
 // A local force apply on a single mobile
@@ -90,6 +102,8 @@ class LocalForce extends AbstractForce {
   }
 }
 
+
+// TODO global gravity
 class LocalGravity extends LocalForce {
   // mobile : object with attribute mass : number
   // vector : Vector
@@ -143,11 +157,11 @@ class Spring extends LocalForce {
     return delta_pos.normalize().scale(delta_length * this.tension);
   }
 
-  // draw() {
-  //   strokeWeight(this.strokeWeight);
-  //   stroke(this.stroke);
-  //   line(this.attachment.pos.x, this.attachment.pos.y, this.mobile.pos.x, this.mobile.pos.y);
-  // }
+  drawSymbol() {
+    strokeWeight(this.strokeWeight);
+    stroke(this.stroke);
+    drawZwigs(this.attachment.pos, this.mobile.pos);
+  }
 }
 
 class SpringMobileMobile extends AbstractForce {
@@ -165,6 +179,10 @@ class SpringMobileMobile extends AbstractForce {
   draw() {
     this.forceAtoB.draw();
     this.forceBtoA.draw();
+  }
+
+  drawSymbol() {
+    this.forceAtoB.drawSymbol();
   }
 }
 
@@ -231,4 +249,21 @@ class Ball {
     stroke(this.stroke);
     ellipse(this.pos.x, this.pos.y, this.radius * 2, this.radius * 2);
   }
+}
+
+// ---- Tools ----
+
+function drawZwigs(a, b) {
+  // TODO
+  line(a.x, a.y, b.x, b.y);
+
+  var width = 20/2;
+  var mainDir = b.sub(a);
+  var positiveSegmentScheme = mainDir.normalize().scale_inplace(width).rotate_inplace(PI/3);
+  var negativeSegmentScheme = mainDir.normalize().scale_inplace(width).rotate_inplace(-PI/3);
+
+  var s1 = a.add(positiveSegmentScheme);
+  line(a.x, a.y, s1.x, s1.y);
+  var s2 = s1.add(negativeSegmentScheme.scale(2));
+  line(s1.x, s1.y, s2.x, s2.y);
 }

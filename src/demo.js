@@ -62,7 +62,7 @@ class Demo {
     this.env.forces.push(smm23);
   }
 
-  draw() {
+  draw(draw_forces = true) {
     if (mouseIsPressed) {
       var mouse = new Vector(mouseX, mouseY);
       this.mouseForce.attachment.pos = mouse;
@@ -70,6 +70,7 @@ class Demo {
     } else {
       this.mouseForce.enabled = false;
     }
+    this.env.draw_forces = draw_forces;
     this.env.draw();
   }
 }
