@@ -148,6 +148,7 @@ class Spring extends LocalForce {
     this.tension = tension;
     // style
     this.stroke = color(200, 100, 150);
+    this.width = 10;
   }
 
   // return : Vector
@@ -160,7 +161,7 @@ class Spring extends LocalForce {
   drawSymbol() {
     strokeWeight(this.strokeWeight);
     stroke(this.stroke);
-    drawZwigs(this.attachment.pos, this.mobile.pos);
+    drawZwigs(this.attachment.pos, this.mobile.pos, this.length / this.width, this.width);
   }
 }
 
@@ -253,17 +254,30 @@ class Ball {
 
 // ---- Tools ----
 
-function drawZwigs(a, b) {
-  // TODO
-  line(a.x, a.y, b.x, b.y);
+function drawZwigs(a, b, n, w) {
+  function drawMoutain(a, b, h) {
+    //        d         -|
+    //    /   |   \      | h
+    //  a --- c --- b   -|
+    var ac = b.sub(a).scale_inplace(1/2);
+    var cd = ac.rotate(PI/2).normalize_inplace().scale(h);
+    var ad = ac.add(cd);
+    var d = ad.add(a);
+    // ad
+    line(a.x, a.y, d.x, d.y);
+    // db
+    line(d.x, d.y, b.x, b.y);
+  }
 
-  var width = 20/2;
-  var mainDir = b.sub(a);
-  var positiveSegmentScheme = mainDir.normalize().scale_inplace(width).rotate_inplace(PI/3);
-  var negativeSegmentScheme = mainDir.normalize().scale_inplace(width).rotate_inplace(-PI/3);
-
-  var s1 = a.add(positiveSegmentScheme);
-  line(a.x, a.y, s1.x, s1.y);
-  var s2 = s1.add(negativeSegmentScheme.scale(2));
-  line(s1.x, s1.y, s2.x, s2.y);
+  var startPoint = a;
+  var ruleSegment = b.sub(a).scale_inplace(1 / n);
+  for (var i = 0; i < n; i++) {
+    var endPoint = startPoint.add(ruleSegment);
+    if (i % 2 == 0) {
+      drawMoutain(startPoint, endPoint, w / 2);
+    } else {
+      drawMoutain(endPoint, startPoint, w / 2);
+    }
+    startPoint = endPoint;
+  }
 }

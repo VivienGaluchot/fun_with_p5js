@@ -20,7 +20,7 @@ class Demo {
     this.env.forces.push(new Spring(ball1, new Localised(new Vector( width / 3, height / 2)), 150, 10));
     this.env.forces.push(new Spring(ball1, new Localised(new Vector( 2 * width / 3, height / 2)), 150, 10));
 
-    this.mouseForce = new Spring(ball1, new Localised(), 0, 5);
+    this.mouseForce = new Spring(ball1, new Localised(), 50, 5);
     this.mouseForce.enabled = false;
     this.mouseForce.strokeWeight = 1;
     this.env.forces.push(this.mouseForce);
