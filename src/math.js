@@ -24,7 +24,8 @@ class Vector {
 
   // return : Vector
   normalize_inplace() {
-    this.scale_inplace(1 / this.length());
+    if (this.length() > 0)
+      this.scale_inplace(1 / this.length());
     return this;
   }
 
