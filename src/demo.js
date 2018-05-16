@@ -100,17 +100,16 @@ class Demo {
     }
   }
 
-  draw(draw_forces = true) {
+  draw(mouse, draw_forces = true) {
     // left
     if (mouseIsPressed) {
-      var mouse = new Vector(mouseX, mouseY);
       this.mouseForce.attachment.pos = mouse;
       this.mouseForce.enabled = true;
     } else {
       this.mouseForce.enabled = false;
     }
     this.env.draw_forces = draw_forces;
-    this.env.draw();
+    this.env.draw(mouse);
 
     strokeWeight(1);
     stroke(color(50));

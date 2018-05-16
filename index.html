@@ -23,16 +23,24 @@
   .centered {
     margin: 0;
     display: flex;
-    /* This centers our sketch horizontally. */
     justify-content: center;
-    /* This centers our sketch vertically. */
     align-items: center;
+  }
+  .part{
+    margin: 10px;
   }
   #sketch-holder {
     height: 700px;
   }
   #toolbar {
-    padding: 20px;
+  }
+  #playPause {
+    width: 100px;
+  }
+  #footer {
+    margin: 20px 0px 0px 0px;
+    padding: 2px;
+    background-color:  #a0a0a0;
   }
   </style>
 
@@ -40,6 +48,7 @@
   <script type="text/javascript" src="p5/addons/p5.dom.min.js"></script>
   <script type="text/javascript" src="p5/addons/p5.sound.min.js"></script>
   <script type="text/javascript" src="src/math.js"></script>
+  <script type="text/javascript" src="src/ui.js"></script>
   <script type="text/javascript" src="src/ph.js"></script>
   <script type="text/javascript" src="src/demo.js"></script>
   <script type="text/javascript" src="src/sketch.js"></script>
@@ -49,7 +58,8 @@
   <h1>fun_width_p5js</h1>
   <p>Dev project, physic simulation environment</p>
   <div id="sketch-holder" class="centered"></div>
-  <div id="toolbar" class="centered"></div>
-  <p>Made with intensive use of <a href="https://p5js.org/">p5.js</a> library</p>
+  <button id="playPause" class="part">-</button>
+  <div id="toolbar" class="part centered"></div>
+  <div id="footer" class="part"><p>Made with intensive use of <a href="https://p5js.org/">p5.js</a> library</p></div>
 </body>
 </html>

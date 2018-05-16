@@ -100,6 +100,30 @@ class Localised {
   }
 }
 
+class AbstractShape {
+  constructor() {}
+  // a : Vector
+  contains(a) { return false; }
+  draw() {}
+}
+
+class Rectangle {
+  // pos, dim : Vector
+  constructor(pos, dim) {
+    this.pos = pos;
+    this.dim = dim;
+  }
+  // a : Vector
+  // return : bool
+  contains(a) {
+    return (a.x >= this.pos.x) && (a.x <= this.pos.x + this.dim.x) &&
+      (a.y >= this.pos.y) && (a.y <= this.pos.y + this.dim.y);
+  }
+  draw() {
+    rect(this.pos.x, this.pos.y, this.dim.x, this.dim.y);
+  }
+}
+
 class Matrix {
   constructor(rows, cols) {
     this.rows = rows;

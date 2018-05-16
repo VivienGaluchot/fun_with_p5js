@@ -8,7 +8,8 @@ class PhysicEnvironment {
     this.draw_forces = true;
   }
 
-  draw() {
+  // mouse : Vector
+  draw(mouse) {
     // apply forces
     this.forces.forEach(function(force) {
       if (force.enabled) {
@@ -46,6 +47,7 @@ class PhysicEnvironment {
     // draw mobiles
     this.mobiles.forEach(function(mobile) {
       if (mobile.visible) {
+        mobile.hovered = mobile.contains(mouse);
         mobile.draw();
       }
     });
@@ -206,14 +208,17 @@ class Ball {
     this.mass = 1;
     this.radius = 10;
     this.f_accumulator = new Vector(0, 0);
+    // interaction
+    this.hovered = false;
     // style
     this.visible = true;
     this.fill = color(220);
+    this.fill_hovered = color(160);
     this.stroke = color(100);
     this.strokeWeight = 2;
     this.past_stroke = color(100, 100, 150);
     this.past_strokeWeight = 1;
-    this.past_max_length = 100;
+    this.past_max_length = 10;
     this.past_dots = [];
   }
 
@@ -236,6 +241,11 @@ class Ball {
     }
   }
 
+  // a : Vector
+  contains(a) {
+    return this.pos.sub(a).length() <= this.radius;
+  }
+
   draw() {
     for (var i = 1; i < this.past_dots.length; i++) {
       var a = this.past_dots[i-1];
@@ -246,7 +256,10 @@ class Ball {
     }
 
     strokeWeight(this.strokeWeight);
-    fill(this.fill);
+    if (this.hovered)
+      fill(this.fill_hovered);
+    else
+      fill(this.fill);
     stroke(this.stroke);
     ellipse(this.pos.x, this.pos.y, this.radius * 2, this.radius * 2);
   }
