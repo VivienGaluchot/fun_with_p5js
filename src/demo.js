@@ -86,8 +86,8 @@ class Demo {
                 this.forceBtoA.mobile.pos.x, this.forceBtoA.mobile.pos.y);
             }
             global_env.forces.push(link);
-          } else {
-            var link = new SpringMobileMobile(ball, el, 200, 10);
+          } else if (random(100) < 85) {
+            var link = new SpringMobileMobile(ball, el, 200, 5);
             link.drawSymbol = function() {
             }
             global_env.forces.push(link);

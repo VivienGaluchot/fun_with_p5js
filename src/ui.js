@@ -82,12 +82,6 @@ class AbstractUiComponent {
     stroke(this.stroke);
     strokeWeight(this.strokeWeight);
     textSize(this.textSize);
-    if (this.stateMachine.state == UiComState.Hovered)
-      stroke(color(0, 250, 0));
-    if (this.stateMachine.state == UiComState.Pressed)
-      stroke(color(250, 0, 0));
-    if (this.stateMachine.state == UiComState.PressedMissed)
-      stroke(color(0, 0, 250));
     this.shape.draw();
   }
 
@@ -173,6 +167,12 @@ class DummyRectangleUiComponent extends RectangleUiComponent {
     super.drawComponent();
     strokeWeight(0);
     fill(this.stroke);
+    if (this.stateMachine.state == UiComState.Hovered)
+      fill(color(0, 100, 0));
+    if (this.stateMachine.state == UiComState.Pressed)
+      fill(color(100, 0, 0));
+    if (this.stateMachine.state == UiComState.PressedMissed)
+      fill(color(0, 0, 100));
     text(this.text, this.shape.pos.x + 5, this.shape.pos.y + 5, this.shape.dim.x - 10, this.shape.dim.y - 10);
   }
 }
