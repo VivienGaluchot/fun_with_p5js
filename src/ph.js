@@ -8,6 +8,7 @@ class PhysicEnvironment {
     this.draw_forces = true;
   }
 
+  // TODO uniformise with ui
   // mouse : Vector
   draw(mouse) {
     // apply forces
@@ -46,9 +47,9 @@ class PhysicEnvironment {
 
     // draw mobiles
     this.mobiles.forEach(function(mobile) {
+      mobile.update(mouse, mouseIsPressed);
       if (mobile.visible) {
-        mobile.hovered = mobile.contains(mouse);
-        mobile.draw();
+        mobile.drawComponent();
       }
     });
   }
@@ -199,17 +200,18 @@ class RigidLink extends SpringMobileMobile {
 
 // ---- Mobiles ----
 
-class Ball {
+class Ball extends CircleUiComponent {
   // pos : Vector
   constructor(pos = new Vector(), spd = new Vector()) {
+    super(pos, 10);
     // physic
-    this.pos = pos;
+    this.pos = this.shape.pos;
     this.spd = spd;
     this.mass = 1;
-    this.radius = 10;
     this.f_accumulator = new Vector(0, 0);
     // interaction
-    this.hovered = false;
+    this.dragMouse = null;
+    this.dragTension = 100;
     // style
     this.visible = true;
     this.fill = color(220);
@@ -229,8 +231,18 @@ class Ball {
 
   // s_time : number
   animate(s_time) {
+    if (this.dragMouse != null) {
+      var delta_pos = this.dragMouse.sub(this.pos);
+      var dragForce = delta_pos.normalize().scale(delta_pos.length() * this.dragTension);
+      this.applyForce(dragForce);
+    }
+
     var acc = this.f_accumulator.scale(1/this.mass);
     this.f_accumulator.set(0, 0);
+
+    if (this.startDragPos != null) {
+      this.pos.copy(this.startDragPos.add(this.dragMouse.sub(this.startDragMouse)));
+    }
 
     this.spd.add_inplace(acc.scale(s_time));
     this.pos.add_inplace(this.spd.scale(s_time));
@@ -241,12 +253,17 @@ class Ball {
     }
   }
 
-  // a : Vector
-  contains(a) {
-    return this.pos.sub(a).length() <= this.radius;
+  startDrag(mouse) {
+    this.dragMouse = mouse.clone();
+  }
+  dragEvent(mouse, lastMouse) {
+    this.dragMouse = mouse.clone();
+  }
+  endDrag(mouse) {
+    this.dragMouse = null;
   }
 
-  draw() {
+  drawComponent() {
     for (var i = 1; i < this.past_dots.length; i++) {
       var a = this.past_dots[i-1];
       var b = this.past_dots[i];
@@ -254,14 +271,13 @@ class Ball {
       stroke(this.past_stroke);
       line(a.x, a.y, b.x, b.y);
     }
-
-    strokeWeight(this.strokeWeight);
-    if (this.hovered)
-      fill(this.fill_hovered);
+    if (this.getState() == UiComState.Hovered ||
+        this.getState() == UiComState.Pressed ||
+        this.getState() == UiComState.PressedMissed)
+      this.fill = color(150);
     else
-      fill(this.fill);
-    stroke(this.stroke);
-    ellipse(this.pos.x, this.pos.y, this.radius * 2, this.radius * 2);
+      this.fill = color(220);
+    super.drawComponent();
   }
 }
 

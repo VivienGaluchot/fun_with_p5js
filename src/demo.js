@@ -19,11 +19,6 @@ class Demo {
     this.env.forces.push(new Spring(ball1, new Localised(new Vector( width / 6, height / 2)), 80, 10));
     this.env.forces.push(new Spring(ball1, new Localised(new Vector( 2 * width / 6, height / 2)), 80, 10));
 
-    this.mouseForce = new Spring(ball1, new Localised(), 50, 5);
-    this.mouseForce.enabled = false;
-    this.mouseForce.strokeWeight = 1;
-    this.env.forces.push(this.mouseForce);
-
     // ball2
     var ball2 = new Ball(new Vector(width / 4, height / 2 + ball_space));
     ball2.mass = 0.3;
@@ -102,12 +97,6 @@ class Demo {
 
   draw(mouse, draw_forces = true) {
     // left
-    if (mouseIsPressed) {
-      this.mouseForce.attachment.pos = mouse;
-      this.mouseForce.enabled = true;
-    } else {
-      this.mouseForce.enabled = false;
-    }
     this.env.draw_forces = draw_forces;
     this.env.draw(mouse);
 

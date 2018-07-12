@@ -7,6 +7,12 @@ class Vector {
     return new Vector(this.x, this.y);
   }
 
+  // v : Vector
+  copy(v) {
+    this.x = v.x;
+    this.y = v.y;
+  }
+
   // x : number
   // y : number
   set(x = 0, y = 0)  {
@@ -124,6 +130,24 @@ class Rectangle {
   }
 }
 
+class Circle {
+  // pos : Vector
+  // rad : number
+  constructor(pos, rad) {
+    this.pos = pos;
+    this.rad = rad;
+  }
+  // a : Vector
+  // return : bool
+  contains(a) {
+    var d = a.sub(this.pos);
+    return d.length() <= this.rad;
+  }
+  draw() {
+    ellipse(this.pos.x, this.pos.y, this.rad * 2, this.rad * 2);
+  }
+}
+
 class Matrix {
   constructor(rows, cols) {
     this.rows = rows;
@@ -197,6 +221,7 @@ class Matrix {
   }
 }
 
+// TODO
 class LinearTransformation {
   constructor() {
     this.matrix = new Matrix(2, 2);
