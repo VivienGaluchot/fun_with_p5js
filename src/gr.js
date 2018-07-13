@@ -6,9 +6,7 @@ var db = Object.freeze({
     { name: "cat1",
       children: [
         {name: "cat1-ch1", desc: "cat1-ch1-desc"},
-        {name: "cat1-ch2", desc: "cat1-ch2-desc"},
-        {name: "cat1-ch3", desc: "cat1-ch3-desc"},
-        {name: "cat1-ch3", desc: "cat1-ch3-desc"}
+        {name: "cat1-ch2", desc: "cat1-ch2-desc"}
       ]
     }, { name: "cat2",
       children: [
@@ -16,25 +14,25 @@ var db = Object.freeze({
         {name: "cat2-ch2", desc: "cat2-ch2-desc"},
         {name: "cat2-ch3", desc: "cat2-ch3-desc"}
       ]
-    }, { name: "cat3",
+    }, { name: "cat4",
       children: [
-        {name: "cat3-ch1", desc: "cat3-ch1-desc"},
-        {name: "cat3-ch2", desc: "cat3-ch2-desc"},
-        {name: "cat3-ch3", desc: "cat3-ch3-desc"},
-        {name: "cat3-ch3", desc: "cat3-ch3-desc"},
-        {name: "cat3-ch3", desc: "cat3-ch3-desc"}
+        {name: "cat4-ch1", desc: "cat4-ch1-desc"},
+        {name: "cat4-ch2", desc: "cat4-ch2-desc"},
+        {name: "cat4-ch3", desc: "cat4-ch3-desc"}
       ]
     }
   ]
 });
 
+// TODO use force fiel or spring between all pair of balls to avoid crossed
+// stable configuration with 4 balls
 function fillPhysicEnvironment(pe, db) {
   var LinkProp = Object.freeze({
-    centerCat: {l: 80, i: 5},
-    centerChild: {l: 160, i: 1},
-    catChild: {l: 60, i: 1},
-    catCat: {l: 180, i: 5},
-    childChild: {l: 50, i: 1}
+    centerCat: {l: 80, i: 50},
+    centerChild: {l: 160, i: 10},
+    catChild: {l: 60, i: 10},
+    catCat: {l: 120, i: 50},
+    childChild: {l: 50, i: 10}
   });
   function link(a, b, prop) {
     var link = new SpringMobileMobile(a, b, prop.l, prop.i);
