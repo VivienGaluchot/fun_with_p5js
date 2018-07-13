@@ -46,9 +46,9 @@ function setup() {
 
   uiTest = new DummyRectangleUiComponent(new Vector(10, 10), new Vector(150, 150));
   uiTest.locked = true;
-  uiTest.childs.push(new DummyRectangleUiComponent(new Vector(15, 35), new Vector(90, 30)));
-  uiTest.childs.push(new DummyRectangleUiComponent(new Vector(110, 35), new Vector(90, 30)));
-  uiTest.childs.push(new DummyCircleUiComponent(new Vector(65, 120), 50));
+  uiTest.children.push(new DummyRectangleUiComponent(new Vector(15, 35), new Vector(90, 30)));
+  uiTest.children.push(new DummyRectangleUiComponent(new Vector(110, 35), new Vector(90, 30)));
+  uiTest.children.push(new DummyCircleUiComponent(new Vector(65, 120), 50));
 }
 
 function windowResized() {

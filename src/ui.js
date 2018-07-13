@@ -75,7 +75,7 @@ class AbstractUiComponent {
   constructor(shape) {
     // build
     this.shape = shape;
-    this.childs = [];
+    this.children = [];
     // style
     this.visible = true;
     this.fill = color(230);
@@ -94,13 +94,31 @@ class AbstractUiComponent {
     return this.stateMachine.isDragged;
   }
 
+  // a : Vector
+  // return : bool
+  contains(a) {
+    if (this.shape == null)
+      return false;
+    else
+      return this.shape.contains(a);
+    // Recursive version
+    // if (this.shape.contains(a))
+    //   return true;
+    // for (var i = 0; i < this.children.length; i++) {
+    //  if (this.children[i].contains(a))
+    //    return true;
+    // }
+    // return false;
+  }
+
   // user events
   clickEvent(mouse) {}
   startDrag(mouse) {}
   dragEvent(mouse, lastMouse) {}
   endDrag(mouse) {}
-
   drawComponent() {
+    if (this.shape == null)
+      return;
     fill(this.fill);
     stroke(this.stroke);
     strokeWeight(this.strokeWeight);
@@ -126,7 +144,7 @@ class AbstractUiComponent {
     }
     this.stateMachine.update(entered, exited, clicked, release, moved);
 
-    this.childs.forEach(function(child) {
+    this.children.forEach(function(child) {
       child.update(mouse, pressed);
     });
 
@@ -143,24 +161,17 @@ class AbstractUiComponent {
 
   draw() {
     this.drawComponent();
-    this.childs.forEach(function(child) {
+    this.children.forEach(function(child) {
       child.draw();
     });
   }
+}
 
-  // a : Vector
-  // return : bool
-  contains(a) {
-    return this.shape.contains(a);
-    // Recursive version
-    // if (this.shape.contains(a))
-    //   return true;
-    // for (var i = 0; i < this.childs.length; i++) {
-    //  if (this.childs[i].contains(a))
-    //    return true;
-    // }
-    // return false;
+class OmniUiComponent extends AbstractUiComponent {
+  constructor() {
+    super(null);
   }
+  contains(a) { return true }
 }
 
 class RectangleUiComponent extends AbstractUiComponent {

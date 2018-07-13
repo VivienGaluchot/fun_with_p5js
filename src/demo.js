@@ -8,7 +8,7 @@ class Demo {
     var ball1 = new Ball(new Vector(width / 4, height / 2));
     ball1.mass = 0.5;
     ball1.past_stroke = color(100, 100, 150);
-    this.env.mobiles.push(ball1);
+    this.env.children.push(ball1);
 
     var gravity = new LocalGravity(ball1, new Vector(0, 100));
     this.env.forces.push(gravity);
@@ -23,7 +23,7 @@ class Demo {
     var ball2 = new Ball(new Vector(width / 4, height / 2 + ball_space));
     ball2.mass = 0.3;
     ball2.past_stroke = color(100, 150, 100);
-    this.env.mobiles.push(ball2);
+    this.env.children.push(ball2);
 
     var gravity2 = new LocalGravity(ball2, new Vector(0, 100));
     this.env.forces.push(gravity2);
@@ -42,7 +42,7 @@ class Demo {
     var ball3 = new Ball(new Vector(width / 4, height / 2 + 2 * ball_space));
     ball3.mass = 0.2;
     ball3.past_stroke = color(150, 100, 100);
-    this.env.mobiles.push(ball3);
+    this.env.children.push(ball3);
 
     var gravity3 = new LocalGravity(ball3, new Vector(0, 100));
     this.env.forces.push(gravity3);
@@ -90,21 +90,21 @@ class Demo {
         });
         generatedBalls.push(ball);
 
-        this.env.mobiles.push(ball);
+        this.env.children.push(ball);
       }
     }
   }
 
   draw(mouse, draw_forces = true) {
-    // left
-    this.env.draw_forces = draw_forces;
-    this.env.draw(mouse);
+    this.env.forces.forEach(function(el) {
+      el.vectorVisible = draw_forces;
+    });
+
+    this.env.update(mouse, mouseIsPressed);
+    this.env.draw();
 
     strokeWeight(1);
     stroke(color(50));
     line(width / 2, height / 9, width / 2, 8 * height / 9);
-
-    // right
-
   }
 }

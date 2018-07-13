@@ -1,16 +1,22 @@
-class PhysicEnvironment {
+class PhysicEnvironment extends AbstractUiComponent {
   constructor() {
-    this.mobiles = [];
-    this.forces = [];
-    this.last_draw_ms = 0;
+    super(null);
 
-    // style
-    this.draw_forces = true;
+    this.forces = [];
+    this.lastDrawMs = 0;
   }
 
-  // TODO uniformise with ui
-  // mouse : Vector
-  draw(mouse) {
+  drawComponent() {
+    // draw forces
+    this.forces.forEach(function(force) {
+      force.drawComponent();
+    });
+  }
+
+  update(mouse, pressed) {
+    // update ui components
+    super.update(mouse, pressed);
+
     // apply forces
     this.forces.forEach(function(force) {
       if (force.enabled) {
@@ -20,37 +26,15 @@ class PhysicEnvironment {
 
     // animate mobiles
     var current_ms = millis();
-    var d_ms = current_ms - this.last_draw_ms;
-    this.last_draw_ms = current_ms;
+    var d_ms = current_ms - this.lastDrawMs;
+    this.lastDrawMs = current_ms;
     var d_s = d_ms / 1000;
     if (d_s > 0.1) {
       print("warning : time lost");
       d_s = 0.1;
     }
-    this.mobiles.forEach(function(mobile) {
+    this.children.forEach(function(mobile) {
       mobile.animate(d_s);
-    });
-
-    // draw forces
-    if (this.draw_forces) {
-      this.forces.forEach(function(force) {
-        if (force.enabled && force.visible) {
-          force.draw();
-        }
-      });
-    }
-    this.forces.forEach(function(force) {
-      if (force.enabled && force.visible) {
-        force.drawSymbol();
-      }
-    });
-
-    // draw mobiles
-    this.mobiles.forEach(function(mobile) {
-      mobile.update(mouse, mouseIsPressed);
-      if (mobile.visible) {
-        mobile.drawComponent();
-      }
     });
   }
 }
@@ -64,11 +48,22 @@ class AbstractForce {
     this.enabled = true;
     // style
     this.visible = true;
+    this.vectorVisible = false;
     this.stroke = color(75);
     this.strokeWeight = 1;
   }
 
   drawSymbol() {}
+  drawVector() {}
+
+  drawComponent() {
+    if (this.enabled && this.vectorVisible) {
+      this.drawVector();
+    }
+    if (this.enabled && this.visible) {
+      this.drawSymbol();
+    }
+  }
 }
 
 // A local force apply on a single mobile
@@ -91,7 +86,7 @@ class LocalForce extends AbstractForce {
     this.mobile.applyForce(this.getForce());
   }
 
-  draw() {
+  drawVector() {
     strokeWeight(this.strokeWeight);
     stroke(this.stroke);
     var f = this.getForce();
@@ -180,9 +175,9 @@ class SpringMobileMobile extends AbstractForce {
     this.forceBtoA.apply();
   }
 
-  draw() {
-    this.forceAtoB.draw();
-    this.forceBtoA.draw();
+  drawVector() {
+    this.forceAtoB.drawVector();
+    this.forceBtoA.drawVector();
   }
 
   drawSymbol() {
@@ -264,20 +259,22 @@ class Ball extends CircleUiComponent {
   }
 
   drawComponent() {
-    for (var i = 1; i < this.past_dots.length; i++) {
-      var a = this.past_dots[i-1];
-      var b = this.past_dots[i];
-      strokeWeight(this.past_strokeWeight);
-      stroke(this.past_stroke);
-      line(a.x, a.y, b.x, b.y);
+    if (this.visible) {
+      for (var i = 1; i < this.past_dots.length; i++) {
+        var a = this.past_dots[i-1];
+        var b = this.past_dots[i];
+        strokeWeight(this.past_strokeWeight);
+        stroke(this.past_stroke);
+        line(a.x, a.y, b.x, b.y);
+      }
+      if (this.getState() == UiComState.Hovered ||
+          this.getState() == UiComState.Pressed ||
+          this.getState() == UiComState.PressedMissed)
+        this.fill = color(150);
+      else
+        this.fill = color(220);
+      super.drawComponent();
     }
-    if (this.getState() == UiComState.Hovered ||
-        this.getState() == UiComState.Pressed ||
-        this.getState() == UiComState.PressedMissed)
-      this.fill = color(150);
-    else
-      this.fill = color(220);
-    super.drawComponent();
   }
 }
 
