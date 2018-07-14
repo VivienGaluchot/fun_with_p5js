@@ -43,8 +43,10 @@ class Vector {
   // v : Vector
   // return Vector
   add_inplace(v) {
-    this.x += v.x;
-    this.y += v.y;
+    if (isFinite(v.x) && isFinite(v.y)) {
+      this.x += v.x;
+      this.y += v.y;
+    }
     return this;
   }
 
@@ -57,8 +59,10 @@ class Vector {
   // v : Vector
   // return Vector
   sub_inplace(v) {
-    this.x -= v.x;
-    this.y -= v.y;
+    if (isFinite(v.x) && isFinite(v.y)) {
+      this.x -= v.x;
+      this.y -= v.y;
+    }
     return this;
   }
 
@@ -71,12 +75,14 @@ class Vector {
   // a : number, angle in radiant
   // return Vector
   rotate_inplace(a) {
-    var c = cos(a);
-    var s = sin(a);
-    var px = this.x;
-    var py = this.y;
-    this.x = c * px - s * py;
-    this.y = s * px + c * py;
+    if (isFinite(a)) {
+      var c = cos(a);
+      var s = sin(a);
+      var px = this.x;
+      var py = this.y;
+      this.x = c * px - s * py;
+      this.y = s * px + c * py;
+    }
     return this;
   }
 
@@ -89,8 +95,10 @@ class Vector {
   // a : number
   // return Vector
   scale_inplace(a) {
-    this.x = this.x * a;
-    this.y = this.y * a;
+    if (isFinite(a)) {
+      this.x = this.x * a;
+      this.y = this.y * a;
+    }
     return this;
   }
 

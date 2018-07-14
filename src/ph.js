@@ -6,6 +6,22 @@ class PhysicEnvironment extends AbstractUiComponent {
     this.lastDrawMs = 0;
   }
 
+  reachStability(max_speed) {
+    console.log("ReachingStability");
+    var next = true;
+    var step = 0;
+    while(next) {
+      if (step % 100 == 0)
+        console.log("step", step)
+      this.animate(0.1);
+      next = this.children.find(function(child) {
+        return child.spd.length() > max_speed;
+      });
+      step++;
+    }
+    console.log("Done");
+  }
+
   drawComponent() {
     // draw forces
     this.forces.forEach(function(force) {
@@ -17,22 +33,27 @@ class PhysicEnvironment extends AbstractUiComponent {
     // update ui components
     super.update(mouse, pressed);
 
-    // apply forces
-    this.forces.forEach(function(force) {
-      if (force.enabled) {
-        force.apply();
-      }
-    });
-
-    // animate mobiles
+    // animate
     var current_ms = millis();
     var d_ms = current_ms - this.lastDrawMs;
     this.lastDrawMs = current_ms;
     var d_s = d_ms / 1000;
     if (d_s > 0.1) {
-      print("warning : time lost");
+      console.log("warning : time lost", d_s);
       d_s = 0.1;
     }
+    this.animate(d_s);
+  }
+
+  animate(d_s) {
+    // apply forces
+    var super_env = this;
+    this.forces.forEach(function(force) {
+      if (force.enabled) {
+        force.apply();
+      }
+    });
+    // animate mobiles
     this.children.forEach(function(mobile) {
       mobile.animate(d_s);
     });
@@ -66,7 +87,99 @@ class AbstractForce {
   }
 }
 
-// A local force apply on a single mobile
+// Generate a force field applied to some mombiles
+class GlobalForce extends AbstractForce {
+  constructor() {
+    super();
+    // physic
+    this.children = [];
+  }
+
+  // to override
+  getForce(mobile) {
+    return new Vector();
+  }
+
+  apply() {
+    var super_force = this;
+    this.children.forEach(function(mobile){
+      mobile.applyForce(super_force.getForce(mobile));
+    });
+  }
+
+  drawVector() {
+    strokeWeight(this.strokeWeight);
+    stroke(this.stroke);
+    var step = 40;
+    var loc = new Localised();
+    for (loc.pos.x = 0; loc.pos.x < width; loc.pos.x += step) {
+      for (loc.pos.y = 0; loc.pos.y < height; loc.pos.y += step) {
+        var f = this.getForce(loc);
+        var f_end = f.add(loc.pos);
+        drawArrow(loc.pos, f_end, 5);
+      }
+    }
+  }
+}
+
+// TODO : make a true gravity, mobiles attracted to mobiles
+class GlobalGravity extends GlobalForce {
+  // vector : Vector
+  constructor(vector = new Vector()) {
+    super();
+    // physic
+    this.vector = vector;
+    // style
+    this.stroke = color(50, 100, 200);
+  }
+
+  getForce(mobile) {
+    if (mobile.mass == null)
+      return this.vector;
+    return this.vector.scale(mobile.mass);
+  }
+}
+
+// TODO Compute with electric fields
+class FakeElectricField extends GlobalForce {
+  // vector : Vector
+  constructor(vector = new Vector()) {
+    super();
+  }
+
+  coulomb(pa, pb, qa, qb) {
+    var ba = pa.sub(pb);
+    var ba_length = ba.length();
+    ba.normalize_inplace();
+    var scale = 10000 * (qa * qb) / (ba_length * ba_length);
+    return ba.scale_inplace(scale);
+  }
+
+  getForce(mobile) {
+    if (mobile.electricCharge == null)
+      return new Vector();
+    var f_accumulator = new Vector();
+    var super_force = this;
+    this.children.forEach(function(child) {
+      if (mobile != child) {
+        f_accumulator.add_inplace(super_force.coulomb(mobile.pos, child.pos, mobile.electricCharge, child.electricCharge));
+      }
+    });
+    return f_accumulator;
+  }
+
+  drawVector() {
+    strokeWeight(this.strokeWeight);
+    stroke(this.stroke);
+    var super_force = this;
+    this.children.forEach(function(child) {
+      var f = super_force.getForce(child);
+      var f_end = f.add(child.pos);
+      drawArrow(child.pos, f_end, 5);
+    });
+  }
+}
+
 class LocalForce extends AbstractForce {
   // mobile : object
   //         attributes pos : vector, spd : vector, mass : number
@@ -91,17 +204,10 @@ class LocalForce extends AbstractForce {
     stroke(this.stroke);
     var f = this.getForce();
     var f_end = f.add(this.mobile.pos);
-    line(this.mobile.pos.x, this.mobile.pos.y, f_end.x, f_end.y);
-    var arrow_l = 5;
-    var arrow_seg_end1 = f.normalize().scale_inplace(arrow_l).rotate_inplace(3 * PI/4).add(f_end);
-    var arrow_seg_end2 = f.normalize().scale_inplace(arrow_l).rotate_inplace(-3 * PI/4).add(f_end);
-    line(f_end.x, f_end.y, arrow_seg_end1.x, arrow_seg_end1.y);
-    line(f_end.x, f_end.y, arrow_seg_end2.x, arrow_seg_end2.y);
+    drawArrow(this.mobile.pos, f_end, 5);
   }
 }
 
-
-// TODO global gravity
 class LocalGravity extends LocalForce {
   // mobile : object with attribute mass : number
   // vector : Vector
@@ -145,6 +251,7 @@ class Spring extends LocalForce {
     this.length = length;
     this.tension = tension;
     // style
+    this.strokeWeight = 1;
     this.stroke = color(200, 100, 150);
     this.width = 10;
   }
@@ -159,7 +266,7 @@ class Spring extends LocalForce {
   drawSymbol() {
     strokeWeight(this.strokeWeight);
     stroke(this.stroke);
-    drawZwigs(this.attachment.pos, this.mobile.pos, this.length / this.width, this.width);
+    drawZwigs(this.attachment.pos, this.mobile.pos, Math.max(this.length / this.width, 2), this.width);
   }
 }
 
@@ -203,6 +310,7 @@ class Ball extends CircleUiComponent {
     this.pos = this.shape.pos;
     this.spd = spd;
     this.mass = 1;
+    this.electricCharge = 1;
     this.f_accumulator = new Vector(0, 0);
     // interaction
     this.dragMouse = null;
@@ -280,6 +388,8 @@ class Ball extends CircleUiComponent {
 
 // ---- Tools ----
 
+// a, b : Vector
+// n, w : number
 function drawZwigs(a, b, n, w) {
   function drawMoutain(a, b, h) {
     //        d         -|
@@ -306,4 +416,15 @@ function drawZwigs(a, b, n, w) {
     }
     startPoint = endPoint;
   }
+}
+
+// a, b : Vector
+// l : number
+function drawArrow(a, b, l) {
+  var norm = b.sub(a).normalize();
+  line(a.x, a.y, b.x, b.y);
+  var arrow_seg_end1 = norm.scale(l).rotate_inplace(3 * PI/4).add(b);
+  var arrow_seg_end2 = norm.scale(l).rotate_inplace(-3 * PI/4).add(b);
+  line(b.x, b.y, arrow_seg_end1.x, arrow_seg_end1.y);
+  line(b.x, b.y, arrow_seg_end2.x, arrow_seg_end2.y);
 }

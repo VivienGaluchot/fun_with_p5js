@@ -14,11 +14,31 @@ var db = Object.freeze({
         {name: "cat2-ch2", desc: "cat2-ch2-desc"},
         {name: "cat2-ch3", desc: "cat2-ch3-desc"}
       ]
+    }, { name: "cat3",
+      children: [
+        {name: "cat3-ch1", desc: "cat3-ch1-desc"},
+        {name: "cat3-ch2", desc: "cat3-ch2-desc"},
+        {name: "cat3-ch3", desc: "cat3-ch3-desc"},
+        {name: "cat3-ch4", desc: "cat3-ch4-desc"},
+        {name: "cat3-ch5", desc: "cat3-ch5-desc"}
+      ]
     }, { name: "cat4",
       children: [
         {name: "cat4-ch1", desc: "cat4-ch1-desc"},
         {name: "cat4-ch2", desc: "cat4-ch2-desc"},
         {name: "cat4-ch3", desc: "cat4-ch3-desc"}
+      ]
+    }, { name: "cat5",
+      children: [
+        {name: "cat5-ch1", desc: "cat5-ch1-desc"},
+        {name: "cat5-ch2", desc: "cat5-ch2-desc"},
+        {name: "cat5-ch3", desc: "cat5-ch3-desc"}
+      ]
+    }, { name: "cat6",
+      children: [
+        {name: "cat6-ch1", desc: "cat6-ch1-desc"},
+        {name: "cat6-ch2", desc: "cat6-ch2-desc"},
+        {name: "cat6-ch3", desc: "cat6-ch3-desc"}
       ]
     }
   ]
@@ -29,10 +49,7 @@ var db = Object.freeze({
 function fillPhysicEnvironment(pe, db) {
   var LinkProp = Object.freeze({
     centerCat: {l: 80, i: 50},
-    centerChild: {l: 160, i: 10},
-    catChild: {l: 60, i: 10},
-    catCat: {l: 120, i: 50},
-    childChild: {l: 50, i: 10}
+    catChild: {l: 60, i: 10}
   });
   function link(a, b, prop) {
     var link = new SpringMobileMobile(a, b, prop.l, prop.i);
@@ -44,50 +61,38 @@ function fillPhysicEnvironment(pe, db) {
     }
     return link;
   }
-  function ghostLink(a, b, prop) {
-    var link = new SpringMobileMobile(a, b, prop.l, prop.i);
-    link.drawSymbol = function() {}
-    return link;
-  }
+
+  var fef = new FakeElectricField();
+  pe.forces.push(fef);
 
   var centerBall = new Ball(new Vector(width / 2, height / 2));
   centerBall.mass = 5;
+  centerBall.electricCharge = 5;
   centerBall.shape.rad = 20;
+  fef.children.push(centerBall);
   pe.children.push(centerBall);
   pe.forces.push(new LocalFriction(centerBall, 5));
-  var catBall = null;
-  var lastCatBall = null;
-  var firstCatBall = null;
+  var centerSpring = new Spring(centerBall, new Localised(new Vector( width / 2, height / 2)), 0, 50);
+  centerSpring.visible = false;
+  pe.forces.push(centerSpring);
   db.categories.forEach(function(categorie) {
     var name = categorie.name;
-    catBall = new Ball(new Vector(random(width), random(height)));
+    var catBall = new Ball(new Vector(random(width), random(height)));
     catBall.shape.rad = 15;
+    catBall.mass = 3;
+    catBall.electricCharge = 3;
     pe.children.push(catBall);
+    fef.children.push(catBall);
     pe.forces.push(new LocalFriction(catBall, 3));
     pe.forces.push(link(centerBall, catBall, LinkProp.centerCat));
-    if (lastCatBall != null)
-      pe.forces.push(ghostLink(lastCatBall, catBall, LinkProp.catCat));
-    var childBall = null;
-    var lastChildBall = null;
-    var firstChildBall = null;
     categorie.children.forEach(function(child) {
-      childBall = new Ball(new Vector(random(width), random(height)));
+      var childBall = new Ball(new Vector(random(width), random(height)));
       pe.children.push(childBall);
+      fef.children.push(childBall);
       pe.forces.push(new LocalFriction(childBall, 0.5));
       pe.forces.push(link(catBall, childBall, LinkProp.catChild));
-      pe.forces.push(ghostLink(centerBall, childBall, LinkProp.centerChild));
-      if (lastChildBall != null)
-        pe.forces.push(ghostLink(childBall, lastChildBall, LinkProp.childChild));
-      lastChildBall = childBall;
-      if (firstChildBall == null)
-        firstChildBall = childBall;
     });
-    pe.forces.push(ghostLink(childBall, firstChildBall, LinkProp.childChild));
-    lastCatBall = catBall;
-    if (firstCatBall == null)
-      firstCatBall = catBall;
   });
-  pe.forces.push(ghostLink(catBall, firstCatBall, LinkProp.catCat));
 }
 
 function setup() {
@@ -103,6 +108,7 @@ function setup() {
   omni.children.push(pe);
 
   fillPhysicEnvironment(pe, db);
+  pe.reachStability(5);
 }
 
 function windowResized() {
