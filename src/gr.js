@@ -107,6 +107,14 @@ function setup() {
   var pe = new PhysicEnvironment();
   omni.children.push(pe);
 
+  button = new DummyRectangleUiComponent(new Vector(10, 10), new Vector(80, 25));
+  button.locked = true;
+  button.text = "Stabilize";
+  button.clickEvent = function(mouse) {
+    pe.reachStability(5);
+  }
+  omni.children.push(button);
+
   fillPhysicEnvironment(pe, db);
   pe.reachStability(5);
 }
