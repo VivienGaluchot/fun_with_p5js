@@ -231,7 +231,7 @@ class DummyRectangleUiComponent extends RectangleUiComponent {
 
   dragEvent(mouse, lastMouse) {
     if (!this.locked)
-      this.shape.pos.add_inplace(mouse.sub(lastMouse));
+      this.shape.pos.addInplace(mouse.sub(lastMouse));
   }
 
   drawComponent() {
@@ -273,7 +273,7 @@ class DummyCircleUiComponent extends CircleUiComponent {
 
   dragEvent(mouse, lastMouse) {
     if (!this.locked)
-      this.shape.pos.add_inplace(mouse.sub(lastMouse));
+      this.shape.pos.addInplace(mouse.sub(lastMouse));
   }
 
   drawComponent() {

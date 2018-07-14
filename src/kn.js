@@ -4,12 +4,12 @@
 
 class Box {
   constructor(name, ins, out, compute) {
-    var current_box = this;
+    var currentBox = this;
     this.name = name;
     this.ins = [];
     ins.forEach(function(v) {
-      v.box = current_box;
-      current_box.ins.push(v);
+      v.box = currentBox;
+      currentBox.ins.push(v);
     });
     out.box = this;
     this.out = out;
@@ -21,17 +21,17 @@ class Box {
     return this.compute(this.ins);
   }
 
-  is_valid(log = false) {
-    var current_box = this;
+  isValid(log = false) {
+    var currentBox = this;
     // check that all ins have this as box
-    var ins_valid = this.ins.every(function(v) {
-      if (log && v.box != current_box)
-        console.error("wrong Box value for In", v, "in Box", current_box);
-      return v.box == current_box;
+    var insValid = this.ins.every(function(v) {
+      if (log && v.box != currentBox)
+        console.error("wrong Box value for In", v, "in Box", currentBox);
+      return v.box == currentBox;
     });
     // check that out have this as box
-    var out_valid = (this.out.box == this);
-    return ins_valid && out_valid;
+    var outValid = (this.out.box == this);
+    return insValid && outValid;
   }
 }
 
@@ -49,21 +49,21 @@ class In {
 
   connect(out) {
     if (this.out != null) {
-      var current_in = this;
+      var currentIn = this;
       this.out.ins = this.out.ins.filter(function(v) {
-          return v !== current_in
+          return v !== currentIn
       })
     }
     this.out = out;
     this.out.ins.push(this);
   }
 
-  is_valid(log = false) {
+  isValid(log = false) {
     // check that out have the right type
-    var out_valid = (this.out == null) || (this.out.type == this.type);
-    if (log && !out_valid)
+    var outValid = (this.out == null) || (this.out.type == this.type);
+    if (log && !outValid)
       console.error("wrong type for Out", this.out, "in In", this);
-    return out_valid;
+    return outValid;
   }
 }
 
@@ -79,15 +79,15 @@ class Out {
     return this.box.value();
   }
 
-  is_valid(log = false) {
-    var current_out = this;
+  isValid(log = false) {
+    var currentOut = this;
     // check that all ins have this as out
-    var ins_valid = this.ins.every(function(v) {
-      if (log && v.out != current_out)
-        console.error("wrong Out for In", v, "in Out", current_out);
-      return v.out == current_out;
+    var insValid = this.ins.every(function(v) {
+      if (log && v.out != currentOut)
+        console.error("wrong Out for In", v, "in Out", currentOut);
+      return v.out == currentOut;
     });
-    return ins_valid;
+    return insValid;
   }
 }
 
@@ -102,22 +102,22 @@ class Assembler {
     this.outs = [];
   }
 
-  register_box(box) {
-    var current_assembler = this;
+  registerBox(box) {
+    var currentAssembler = this;
     this.boxs.push(box);
     box.ins.forEach(function(v) {
-      current_assembler.ins.push(v);
+      currentAssembler.ins.push(v);
     });
-    current_assembler.outs.push(box.out);
+    currentAssembler.outs.push(box.out);
   }
 
-  is_valid(log = false) {
-    function is_valid(v) {
-      return v.is_valid(log);
+  isValid(log = false) {
+    function isValid(v) {
+      return v.isValid(log);
     }
-    var boxs_valid = this.boxs.every(is_valid);
-    var ins_valid = this.ins.every(is_valid);
-    var outs_valid = this.outs.every(is_valid);
-    return boxs_valid && ins_valid && outs_valid;
+    var boxsValid = this.boxs.every(isValid);
+    var insValid = this.ins.every(isValid);
+    var outsValid = this.outs.every(isValid);
+    return boxsValid && insValid && outsValid;
   }
 }

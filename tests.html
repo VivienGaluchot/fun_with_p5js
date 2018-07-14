@@ -20,13 +20,22 @@
     line-height: 3em;
     z-index: 1;
   }
+  .centered {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
   .part{
     margin: 10px;
   }
   #sketch-holder {
-    margin-left: 5%;
-    width: 90%;
-    height: 500px;
+    height: 700px;
+  }
+  #toolbar {
+  }
+  #playPause {
+    width: 100px;
   }
   #footer {
     margin: 20px 0px 0px 0px;
@@ -42,14 +51,16 @@
   <script type="text/javascript" src="src/math.js"></script>
   <script type="text/javascript" src="src/ui.js"></script>
   <script type="text/javascript" src="src/ph.js"></script>
-  <script type="text/javascript" src="src/gr.js"></script>
+  <script type="text/javascript" src="src/demo.js"></script>
+  <script type="text/javascript" src="src/sketch.js"></script>
 
 </head>
 <body>
-  <h1>fun_width_p5js - gr</h1>
-  <p>graph ui</p>
-  <p><a href="index.html">index</a></p>
-  <div id="sketch-holder"></div>
+  <h1>fun_width_p5js</h1>
+  <p><a href="index.html">retour</a></p>
+  <div id="sketch-holder" class="centered"></div>
+  <button id="playPause" class="part">-</button>
+  <div id="toolbar" class="part centered"></div>
   <div id="footer" class="part"><p>Made with intensive use of <a href="https://p5js.org/">p5.js</a> library</p></div>
 </body>
 </html>

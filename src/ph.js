@@ -8,7 +8,7 @@ class PhysicEnvironment extends AbstractUiComponent {
     this.lastDrawMs = 0;
   }
 
-  reachStability(max_speed) {
+  reachStability(maxSpeed) {
     console.log("ReachingStability");
     var next = true;
     var step = 0;
@@ -17,7 +17,7 @@ class PhysicEnvironment extends AbstractUiComponent {
         console.log("step", step)
       this.animate(0.1);
       next = this.children.find(function(child) {
-        return child.spd.length() > max_speed;
+        return child.spd.length() > maxSpeed;
       });
       step++;
       if (step > 10000)
@@ -33,25 +33,28 @@ class PhysicEnvironment extends AbstractUiComponent {
     });
   }
 
+  // mouse : Vector
+  // pressed : boolean
   update(mouse, pressed) {
     // update ui components
     super.update(mouse, pressed);
 
     // animate
-    var current_ms = millis();
-    var d_ms = current_ms - this.lastDrawMs;
-    this.lastDrawMs = current_ms;
-    var d_s = d_ms / 1000;
-    if (d_s > 0.1) {
-      console.log("warning : time lost", d_s);
-      d_s = 0.1;
+    var currentTimeInMs = millis();
+    var timeDeltaInMs = currentTimeInMs - this.lastDrawMs;
+    this.lastDrawMs = currentTimeInMs;
+    var timeDeltaInS = timeDeltaInMs / 1000;
+    if (timeDeltaInS > 0.1) {
+      console.log("warning : time lost", timeDeltaInS);
+      timeDeltaInS = 0.1;
     }
-    this.animate(d_s);
+    this.animate(timeDeltaInS);
   }
 
-  animate(d_s) {
+  // timeDeltaInS : number
+  animate(timeDeltaInS) {
     // apply forces
-    var super_env = this;
+    var superEnv = this;
     this.forces.forEach(function(force) {
       if (force.enabled) {
         force.apply();
@@ -59,7 +62,7 @@ class PhysicEnvironment extends AbstractUiComponent {
     });
     // animate mobiles
     this.children.forEach(function(mobile) {
-      mobile.animate(d_s);
+      mobile.animate(timeDeltaInS);
     });
   }
 }
@@ -105,9 +108,9 @@ class GlobalForce extends AbstractForce {
   }
 
   apply() {
-    var super_force = this;
+    var superForce = this;
     this.children.forEach(function(mobile){
-      mobile.applyForce(super_force.getForce(mobile));
+      mobile.applyForce(superForce.getForce(mobile));
     });
   }
 
@@ -119,8 +122,8 @@ class GlobalForce extends AbstractForce {
     for (loc.pos.x = 0; loc.pos.x < width; loc.pos.x += step) {
       for (loc.pos.y = 0; loc.pos.y < height; loc.pos.y += step) {
         var f = this.getForce(loc);
-        var f_end = f.add(loc.pos);
-        drawArrow(loc.pos, f_end, 5);
+        var fEnd = f.add(loc.pos);
+        drawArrow(loc.pos, fEnd, 5);
       }
     }
   }
@@ -153,33 +156,33 @@ class FakeElectricField extends GlobalForce {
 
   coulomb(pa, pb, qa, qb) {
     var ba = pa.sub(pb);
-    var ba_length = ba.length();
-    ba.normalize_inplace();
-    var scale = 10000 * (qa * qb) / (ba_length * ba_length);
-    return ba.scale_inplace(scale);
+    var baLength = ba.length();
+    ba.normalizeInplace();
+    var scale = 10000 * (qa * qb) / (baLength * baLength);
+    return ba.scaleInplace(scale);
   }
 
   getForce(mobile) {
     if (mobile.electricCharge == null)
       return new Vector();
-    var f_accumulator = new Vector();
-    var super_force = this;
+    var fAccumulator = new Vector();
+    var superForce = this;
     this.children.forEach(function(child) {
       if (mobile != child) {
-        f_accumulator.add_inplace(super_force.coulomb(mobile.pos, child.pos, mobile.electricCharge, child.electricCharge));
+        fAccumulator.addInplace(superForce.coulomb(mobile.pos, child.pos, mobile.electricCharge, child.electricCharge));
       }
     });
-    return f_accumulator;
+    return fAccumulator;
   }
 
   drawVector() {
     strokeWeight(this.strokeWeight);
     stroke(this.stroke);
-    var super_force = this;
+    var superForce = this;
     this.children.forEach(function(child) {
-      var f = super_force.getForce(child);
-      var f_end = f.add(child.pos);
-      drawArrow(child.pos, f_end, 5);
+      var f = superForce.getForce(child);
+      var fEnd = f.add(child.pos);
+      drawArrow(child.pos, fEnd, 5);
     });
   }
 }
@@ -207,8 +210,8 @@ class LocalForce extends AbstractForce {
     strokeWeight(this.strokeWeight);
     stroke(this.stroke);
     var f = this.getForce();
-    var f_end = f.add(this.mobile.pos);
-    drawArrow(this.mobile.pos, f_end, 5);
+    var fEnd = f.add(this.mobile.pos);
+    drawArrow(this.mobile.pos, fEnd, 5);
   }
 }
 
@@ -262,9 +265,9 @@ class Spring extends LocalForce {
 
   // return : Vector
   getForce() {
-    var delta_pos = this.attachment.pos.sub(this.mobile.pos);
-    var delta_length = delta_pos.length() - this.length;
-    return delta_pos.normalize().scale(delta_length * this.tension);
+    var deltaPos = this.attachment.pos.sub(this.mobile.pos);
+    var deltaLength = deltaPos.length() - this.length;
+    return deltaPos.normalize().scale(deltaLength * this.tension);
   }
 
   drawSymbol() {
@@ -315,51 +318,70 @@ class Ball extends CircleUiComponent {
     this.spd = spd;
     this.mass = 1;
     this.electricCharge = 1;
-    this.f_accumulator = new Vector(0, 0);
+    this.fAccumulator = new Vector(0, 0);
+    this.canvasBouded = true;
     // interaction
     this.dragMouse = null;
     this.dragTension = 100;
     // style
     this.visible = true;
-    console.log(this.fill);
     this.fill.setAll(color(220));
     this.fill.set(UiComState.Hovered, color(150));
     this.fill.set(UiComState.Pressed, color(150));
     this.fill.set(UiComState.PressedMissed, color(150));
     this.stroke.setAll(color(100));
     this.strokeWeight.setAll(2);
-    this.past_stroke = color(100, 100, 150);
-    this.past_strokeWeight = 1;
-    this.past_max_length = 10;
-    this.past_dots = [];
+    this.pastStroke = color(100, 100, 150);
+    this.pastStrokeWeight = 1;
+    this.pastMaxLength = 10;
+    this.pastDots = [];
   }
 
   // f : Vector
   applyForce(f) {
-    this.f_accumulator.add_inplace(f);
+    this.fAccumulator.addInplace(f);
   }
 
-  // s_time : number
-  animate(s_time) {
+  // timeInS : number
+  animate(timeInS) {
     if (this.dragMouse != null) {
-      var delta_pos = this.dragMouse.sub(this.pos);
-      var dragForce = delta_pos.normalize().scale(delta_pos.length() * this.dragTension);
+      var deltaPos = this.dragMouse.sub(this.pos);
+      var dragForce = deltaPos.normalize().scale(deltaPos.length() * this.dragTension);
       this.applyForce(dragForce);
     }
 
-    var acc = this.f_accumulator.scale(1/this.mass);
-    this.f_accumulator.set(0, 0);
+    var acc = this.fAccumulator.scale(1/this.mass);
+    this.fAccumulator.set(0, 0);
 
     if (this.startDragPos != null) {
       this.pos.copy(this.startDragPos.add(this.dragMouse.sub(this.startDragMouse)));
     }
 
-    this.spd.add_inplace(acc.scale(s_time));
-    this.pos.add_inplace(this.spd.scale(s_time));
+    this.spd.addInplace(acc.scale(timeInS));
+    this.pos.addInplace(this.spd.scale(timeInS));
 
-    this.past_dots.push(this.pos.clone());
-    while (this.past_dots.length > this.past_max_length) {
-      this.past_dots.shift();
+    if (this.canvasBouded) {
+      if (this.pos.x - this.shape.rad < 0) {
+        this.pos.x = this.shape.rad;
+        this.spd.x = 0;
+      }
+      if (this.pos.x + this.shape.rad > width) {
+        this.pos.x = width - this.shape.rad;
+        this.spd.x = 0;
+      }
+      if (this.pos.y - this.shape.rad < 0) {
+        this.pos.y = this.shape.rad;
+        this.spd.y = 0;
+      }
+      if (this.pos.y + this.shape.rad > height) {
+        this.pos.y = height - this.shape.rad;
+        this.spd.y = 0;
+      }
+    }
+
+    this.pastDots.push(this.pos.clone());
+    while (this.pastDots.length > this.pastMaxLength) {
+      this.pastDots.shift();
     }
   }
 
@@ -375,11 +397,11 @@ class Ball extends CircleUiComponent {
 
   drawComponent() {
     if (this.visible) {
-      for (var i = 1; i < this.past_dots.length; i++) {
-        var a = this.past_dots[i-1];
-        var b = this.past_dots[i];
-        strokeWeight(this.past_strokeWeight);
-        stroke(this.past_stroke);
+      for (var i = 1; i < this.pastDots.length; i++) {
+        var a = this.pastDots[i-1];
+        var b = this.pastDots[i];
+        strokeWeight(this.pastStrokeWeight);
+        stroke(this.pastStroke);
         line(a.x, a.y, b.x, b.y);
       }
       super.drawComponent();
@@ -396,8 +418,8 @@ function drawZwigs(a, b, n, w) {
     //        d         -|
     //    /   |   \      | h
     //  a --- c --- b   -|
-    var ac = b.sub(a).scale_inplace(1/2);
-    var cd = ac.rotate(PI/2).normalize_inplace().scale(h);
+    var ac = b.sub(a).scaleInplace(1/2);
+    var cd = ac.rotate(PI/2).normalizeInplace().scale(h);
     var ad = ac.add(cd);
     var d = ad.add(a);
     // ad
@@ -407,7 +429,7 @@ function drawZwigs(a, b, n, w) {
   }
 
   var startPoint = a;
-  var ruleSegment = b.sub(a).scale_inplace(1 / n);
+  var ruleSegment = b.sub(a).scaleInplace(1 / n);
   for (var i = 0; i < n; i++) {
     var endPoint = startPoint.add(ruleSegment);
     if (i % 2 == 0) {
@@ -424,8 +446,8 @@ function drawZwigs(a, b, n, w) {
 function drawArrow(a, b, l) {
   var norm = b.sub(a).normalize();
   line(a.x, a.y, b.x, b.y);
-  var arrow_seg_end1 = norm.scale(l).rotate_inplace(3 * PI/4).add(b);
-  var arrow_seg_end2 = norm.scale(l).rotate_inplace(-3 * PI/4).add(b);
-  line(b.x, b.y, arrow_seg_end1.x, arrow_seg_end1.y);
-  line(b.x, b.y, arrow_seg_end2.x, arrow_seg_end2.y);
+  var arrowSegEnd1 = norm.scale(l).rotateInplace(3 * PI/4).add(b);
+  var arrowSegEnd2 = norm.scale(l).rotateInplace(-3 * PI/4).add(b);
+  line(b.x, b.y, arrowSegEnd1.x, arrowSegEnd1.y);
+  line(b.x, b.y, arrowSegEnd2.x, arrowSegEnd2.y);
 }

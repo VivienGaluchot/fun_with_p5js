@@ -20,22 +20,14 @@
     line-height: 3em;
     z-index: 1;
   }
-  .centered {
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
   .part{
     margin: 10px;
   }
   #sketch-holder {
-    height: 700px;
-  }
-  #toolbar {
-  }
-  #playPause {
-    width: 100px;
+    border: 1px solid #0f0f0f;
+    margin-left: 5%;
+    width: 90%;
+    height: 500px;
   }
   #footer {
     margin: 20px 0px 0px 0px;
@@ -51,17 +43,18 @@
   <script type="text/javascript" src="src/math.js"></script>
   <script type="text/javascript" src="src/ui.js"></script>
   <script type="text/javascript" src="src/ph.js"></script>
-  <script type="text/javascript" src="src/demo.js"></script>
-  <script type="text/javascript" src="src/sketch.js"></script>
+  <script type="text/javascript" src="src/gr.js"></script>
 
 </head>
 <body>
   <h1>fun_width_p5js</h1>
-  <p>Dev project, physic simulation environment</p>
-  <p><a href="gr.html">gr</a></p>
-  <div id="sketch-holder" class="centered"></div>
-  <button id="playPause" class="part">-</button>
-  <div id="toolbar" class="part centered"></div>
-  <div id="footer" class="part"><p>Made with intensive use of <a href="https://p5js.org/">p5.js</a> library</p></div>
+  <p>javascript physic simulation environment</p>
+  <p>voir aussi : <a href="tests.html">tests</a></p>
+  <h2>graph visualisation experiment</h2>
+  <div id="sketch-holder"></div>
+  <div id="footer" class="part">
+      <p>Made with intensive use of <a href="https://p5js.org/">p5.js</a> library</p>
+      <p>Code available <a href="https://github.com/VivienGaluchot/fun_with_p5js">here</a></p>
+  </div>
 </body>
 </html>

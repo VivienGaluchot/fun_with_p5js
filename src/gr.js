@@ -59,7 +59,7 @@ function fillPhysicEnvironment(pe, db) {
   });
   function pushBall(rad, mass, electricCharge, friction) {
     var ball = new Ball(new Vector(random(width), random(height)));
-    ball.past_max_length = 0;
+    ball.pastMaxLength = 0;
     ball.shape.rad = rad;
     ball.mass = mass;
     ball.electricCharge = electricCharge;

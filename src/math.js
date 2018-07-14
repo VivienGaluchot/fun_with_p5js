@@ -29,20 +29,20 @@ class Vector {
   // Vector transformations
 
   // return : Vector
-  normalize_inplace() {
+  normalizeInplace() {
     if (this.length() > 0)
-      this.scale_inplace(1 / this.length());
+      this.scaleInplace(1 / this.length());
     return this;
   }
 
   // return : Vector
   normalize() {
-    return this.clone().normalize_inplace();
+    return this.clone().normalizeInplace();
   }
 
   // v : Vector
   // return Vector
-  add_inplace(v) {
+  addInplace(v) {
     if (isFinite(v.x) && isFinite(v.y)) {
       this.x += v.x;
       this.y += v.y;
@@ -53,12 +53,12 @@ class Vector {
   // v : Vector
   // return Vector
   add(v) {
-    return this.clone().add_inplace(v);
+    return this.clone().addInplace(v);
   }
 
   // v : Vector
   // return Vector
-  sub_inplace(v) {
+  subInplace(v) {
     if (isFinite(v.x) && isFinite(v.y)) {
       this.x -= v.x;
       this.y -= v.y;
@@ -69,12 +69,12 @@ class Vector {
   // v : Vector
   // return Vector
   sub(v) {
-    return this.clone().sub_inplace(v);
+    return this.clone().subInplace(v);
   }
 
   // a : number, angle in radiant
   // return Vector
-  rotate_inplace(a) {
+  rotateInplace(a) {
     if (isFinite(a)) {
       var c = cos(a);
       var s = sin(a);
@@ -89,12 +89,12 @@ class Vector {
   // a : number, angle in radiant
   // return Vector
   rotate(a) {
-    return this.clone().rotate_inplace(a);
+    return this.clone().rotateInplace(a);
   }
 
   // a : number
   // return Vector
-  scale_inplace(a) {
+  scaleInplace(a) {
     if (isFinite(a)) {
       this.x = this.x * a;
       this.y = this.y * a;
@@ -104,7 +104,7 @@ class Vector {
 
   // a : number
   scale(a) {
-    return this.clone().scale_inplace(a);
+    return this.clone().scaleInplace(a);
   }
 }
 
