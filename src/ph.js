@@ -451,3 +451,19 @@ function drawArrow(a, b, l) {
   line(b.x, b.y, arrowSegEnd1.x, arrowSegEnd1.y);
   line(b.x, b.y, arrowSegEnd2.x, arrowSegEnd2.y);
 }
+
+
+function collisionSolver(ma, mb, via, vib) {
+  var alpha = mb / ma;
+  var vfa = ((1 - alpha) * via + 2 * alpha * vib ) / (alpha + 1);
+  var vfb = (2 * via + (alpha - 1) * vib) / (alpha + 1);
+  // test
+  var iim = ma * via + mb * vib;
+  var fim = ma * vfa + mb * vfb;
+  var ien = ma * via * via / 2 + mb * vib * vib / 2;
+  var fen = ma * vfa * vfa / 2 + mb * vfb * vfb / 2;
+  console.assert(abs(iim - fim) < 0.0000001, "impulse not conserved", iim, fim);
+  console.assert(abs(ien == fen) < 0.0000001, "energie not conserved", ien, fen);
+  // test
+  return [vfa, vfb];
+}
