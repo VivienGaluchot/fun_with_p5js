@@ -1,3 +1,5 @@
+// TODO use workers
+
 class PhysicEnvironment extends AbstractUiComponent {
   constructor() {
     super(null);
@@ -11,13 +13,15 @@ class PhysicEnvironment extends AbstractUiComponent {
     var next = true;
     var step = 0;
     while(next) {
-      if (step % 100 == 0)
+      if (step % 200 == 0)
         console.log("step", step)
       this.animate(0.1);
       next = this.children.find(function(child) {
         return child.spd.length() > max_speed;
       });
       step++;
+      if (step > 10000)
+        next = false;
     }
     console.log("Done");
   }

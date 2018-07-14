@@ -45,13 +45,18 @@ class StateMachine {
         this.dragEventFlag = true;
         this.isDragged = true;
       }
-      if (exited) {
-        this.state = UiComState.PressedMissed;
-      } else if (release) {
+      if (release) {
         this.endDragEventFlag = this.isDragged;
         this.isDragged = false;
+      }
+      if (release && exited) {
+        this.clickEventFlag = true;
+        this.state = UiComState.Idle;
+      } else if (release) {
         this.clickEventFlag = true;
         this.state = UiComState.Hovered;
+      } else if (exited) {
+        this.state = UiComState.PressedMissed;
       }
     } else if (this.state == UiComState.PressedMissed) {
       if (moved && !release) {
@@ -59,12 +64,14 @@ class StateMachine {
         this.dragEventFlag = true;
         this.isDragged = true;
       }
-      if (entered) {
-        this.state = UiComState.Pressed;
-      } else if (release) {
+      if (release) {
         this.endDragEventFlag = this.isDragged;
         this.isDragged = false;
+      }
+      if (release) {
         this.state = UiComState.Idle;
+      } else if (entered) {
+        this.state = UiComState.Pressed;
       }
     }
   }
