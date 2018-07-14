@@ -4,17 +4,20 @@ var omni;
 var db = Object.freeze({
   categories: [
     { name: "cat1",
+      hue: 1 / 6,
       children: [
         {name: "cat1-ch1", desc: "cat1-ch1-desc"},
         {name: "cat1-ch2", desc: "cat1-ch2-desc"}
       ]
     }, { name: "cat2",
+      hue: 2 / 6,
       children: [
         {name: "cat2-ch1", desc: "cat2-ch1-desc"},
         {name: "cat2-ch2", desc: "cat2-ch2-desc"},
         {name: "cat2-ch3", desc: "cat2-ch3-desc"}
       ]
     }, { name: "cat3",
+      hue: 3 / 6,
       children: [
         {name: "cat3-ch1", desc: "cat3-ch1-desc"},
         {name: "cat3-ch2", desc: "cat3-ch2-desc"},
@@ -23,18 +26,21 @@ var db = Object.freeze({
         {name: "cat3-ch5", desc: "cat3-ch5-desc"}
       ]
     }, { name: "cat4",
+      hue: 4 / 6,
       children: [
         {name: "cat4-ch1", desc: "cat4-ch1-desc"},
         {name: "cat4-ch2", desc: "cat4-ch2-desc"},
         {name: "cat4-ch3", desc: "cat4-ch3-desc"}
       ]
     }, { name: "cat5",
+      hue: 5 / 6,
       children: [
         {name: "cat5-ch1", desc: "cat5-ch1-desc"},
         {name: "cat5-ch2", desc: "cat5-ch2-desc"},
         {name: "cat5-ch3", desc: "cat5-ch3-desc"}
       ]
     }, { name: "cat6",
+      hue: 6 / 6,
       children: [
         {name: "cat6-ch1", desc: "cat6-ch1-desc"},
         {name: "cat6-ch2", desc: "cat6-ch2-desc"},
@@ -51,11 +57,22 @@ function fillPhysicEnvironment(pe, db) {
     centerCat: {l: 80, i: 50},
     catChild: {l: 60, i: 10}
   });
-  function link(a, b, prop) {
+  function pushBall(rad, mass, electricCharge, friction) {
+    var ball = new Ball(new Vector(random(width), random(height)));
+    ball.past_max_length = 0;
+    ball.shape.rad = rad;
+    ball.mass = mass;
+    ball.electricCharge = electricCharge;
+    pe.children.push(ball);
+    fef.children.push(ball);
+    pe.forces.push(new LocalFriction(ball, friction));
+    return ball;
+  }
+  function link(a, b, prop, color) {
     var link = new SpringMobileMobile(a, b, prop.l, prop.i);
     link.drawSymbol = function() {
       strokeWeight(2);
-      stroke(color(50));
+      stroke(color);
       line(this.forceAtoB.mobile.pos.x, this.forceAtoB.mobile.pos.y,
         this.forceBtoA.mobile.pos.x, this.forceBtoA.mobile.pos.y);
     }
@@ -65,32 +82,31 @@ function fillPhysicEnvironment(pe, db) {
   var fef = new FakeElectricField();
   pe.forces.push(fef);
 
-  var centerBall = new Ball(new Vector(width / 2, height / 2));
-  centerBall.mass = 5;
-  centerBall.electricCharge = 5;
-  centerBall.shape.rad = 20;
-  fef.children.push(centerBall);
-  pe.children.push(centerBall);
-  pe.forces.push(new LocalFriction(centerBall, 5));
-  var centerSpring = new Spring(centerBall, new Localised(new Vector( width / 2, height / 2)), 0, 50);
+  var centerBall = pushBall(20, 5, 5, 5);
+  centerBall.stroke.setAll(color(100));
+  var centerSpring = new Spring(centerBall, new Localised(omni.centerLocation), 0, 50);
   centerSpring.visible = false;
   pe.forces.push(centerSpring);
   db.categories.forEach(function(categorie) {
     var name = categorie.name;
-    var catBall = new Ball(new Vector(random(width), random(height)));
-    catBall.shape.rad = 15;
-    catBall.mass = 3;
-    catBall.electricCharge = 3;
-    pe.children.push(catBall);
-    fef.children.push(catBall);
-    pe.forces.push(new LocalFriction(catBall, 3));
-    pe.forces.push(link(centerBall, catBall, LinkProp.centerCat));
+    var catBall = pushBall(15, 3, 3, 3);
+    var catStroke = hslToRgb(categorie.hue, 0.7, 0.4);
+    var catFill = hslToRgb(categorie.hue, 0.4, 0.85);
+    var catFillHovered = hslToRgb(categorie.hue, 0.7, 0.7);
+    catBall.stroke.setAll(color(catStroke[0], catStroke[1], catStroke[2]));
+    catBall.fill.setAll(color(catFill[0], catFill[1], catFill[2]));
+    catBall.fill.set(UiComState.Hovered, catFillHovered);
+    catBall.fill.set(UiComState.Pressed, catFillHovered);
+    catBall.fill.set(UiComState.PressedMissed, catFillHovered);
+    pe.forces.push(link(centerBall, catBall, LinkProp.centerCat, catStroke));
     categorie.children.forEach(function(child) {
-      var childBall = new Ball(new Vector(random(width), random(height)));
-      pe.children.push(childBall);
-      fef.children.push(childBall);
-      pe.forces.push(new LocalFriction(childBall, 0.5));
-      pe.forces.push(link(catBall, childBall, LinkProp.catChild));
+      var childBall = pushBall(10, 1, 1, 0.5);
+      childBall.stroke.setAll(color(catStroke[0], catStroke[1], catStroke[2]));
+      childBall.fill.setAll(color(catFill[0], catFill[1], catFill[2]));
+      childBall.fill.set(UiComState.Hovered, catFillHovered);
+      childBall.fill.set(UiComState.Pressed, catFillHovered);
+      childBall.fill.set(UiComState.PressedMissed, catFillHovered);
+      pe.forces.push(link(catBall, childBall, LinkProp.catChild, catStroke));
     });
   });
 }
@@ -103,6 +119,7 @@ function setup() {
   frameRate(60);
 
   omni = new OmniUiComponent();
+  omni.centerLocation = new Vector(width / 2, height / 2);
 
   var pe = new PhysicEnvironment();
   omni.children.push(pe);
@@ -121,6 +138,7 @@ function setup() {
 
 function windowResized() {
   resizeCanvas(sketchElement.offsetWidth, sketchElement.offsetHeight);
+  omni.centerLocation.set(width / 2, height / 2);
 }
 
 function draw() {

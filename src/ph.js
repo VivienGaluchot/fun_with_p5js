@@ -321,10 +321,13 @@ class Ball extends CircleUiComponent {
     this.dragTension = 100;
     // style
     this.visible = true;
-    this.fill = color(220);
-    this.fill_hovered = color(160);
-    this.stroke = color(100);
-    this.strokeWeight = 2;
+    console.log(this.fill);
+    this.fill.setAll(color(220));
+    this.fill.set(UiComState.Hovered, color(150));
+    this.fill.set(UiComState.Pressed, color(150));
+    this.fill.set(UiComState.PressedMissed, color(150));
+    this.stroke.setAll(color(100));
+    this.strokeWeight.setAll(2);
     this.past_stroke = color(100, 100, 150);
     this.past_strokeWeight = 1;
     this.past_max_length = 10;
@@ -379,12 +382,6 @@ class Ball extends CircleUiComponent {
         stroke(this.past_stroke);
         line(a.x, a.y, b.x, b.y);
       }
-      if (this.getState() == UiComState.Hovered ||
-          this.getState() == UiComState.Pressed ||
-          this.getState() == UiComState.PressedMissed)
-        this.fill = color(150);
-      else
-        this.fill = color(220);
       super.drawComponent();
     }
   }

@@ -1,9 +1,31 @@
 UiComState = Object.freeze({
-  Idle : 1,
-  Hovered : 2,
-  Pressed : 3,
-  PressedMissed : 4
+  Idle : 0,
+  Hovered : 1,
+  Pressed : 2,
+  PressedMissed : 3
 });
+
+class StateDependentValue {
+  constructor(defaultValue) {
+    this.values = [];
+    this.setAll(defaultValue);
+  }
+
+  setAll(v) {
+    this.values[UiComState.Idle] = v;
+    this.values[UiComState.Hovered] = v;
+    this.values[UiComState.Pressed] = v;
+    this.values[UiComState.PressedMissed] = v;
+  }
+
+  set(state, v) {
+    this.values[state] = v;
+  }
+
+  get(state) {
+    return this.values[state];
+  }
+}
 
 class StateMachine {
   constructor() {
@@ -83,15 +105,15 @@ class AbstractUiComponent {
     // build
     this.shape = shape;
     this.children = [];
-    // style
-    this.visible = true;
-    this.fill = color(230);
-    this.stroke = color(50);
-    this.strokeWeight = 1;
-    this.textSize = 15;
     // state
     this.lastInputs = null;
     this.stateMachine = new StateMachine();
+    // style
+    this.visible = true;
+    this.fill = new StateDependentValue(color(230));
+    this.stroke = new StateDependentValue(color(50));
+    this.strokeWeight = new StateDependentValue(1);
+    this.textSize = new StateDependentValue(15);
   }
 
   getState() {
@@ -123,13 +145,14 @@ class AbstractUiComponent {
   startDrag(mouse) {}
   dragEvent(mouse, lastMouse) {}
   endDrag(mouse) {}
+
   drawComponent() {
     if (this.shape == null)
       return;
-    fill(this.fill);
-    stroke(this.stroke);
-    strokeWeight(this.strokeWeight);
-    textSize(this.textSize);
+    fill(this.fill.get(this.getState()));
+    stroke(this.stroke.get(this.getState()));
+    strokeWeight(this.strokeWeight.get(this.getState()));
+    textSize(this.textSize.get(this.getState()));
     this.shape.draw();
   }
 
@@ -195,6 +218,10 @@ class DummyRectangleUiComponent extends RectangleUiComponent {
     this.text = "Hello world !";
     this.counter = 0;
     this.locked = false;
+    this.stroke.set(UiComState.Hovered, color(0, 100, 0));
+    this.stroke.set(UiComState.Pressed, color(100, 0, 0));
+    this.stroke.set(UiComState.PressedMissed, color(0, 0, 100));
+    this.stroke.set(UiComState.Hovered, color(0, 100, 0));
   }
 
   clickEvent(mouse) {
@@ -210,13 +237,7 @@ class DummyRectangleUiComponent extends RectangleUiComponent {
   drawComponent() {
     super.drawComponent();
     strokeWeight(0);
-    fill(this.stroke);
-    if (this.getState() == UiComState.Hovered)
-      fill(color(0, 100, 0));
-    if (this.getState() == UiComState.Pressed)
-      fill(color(100, 0, 0));
-    if (this.getState() == UiComState.PressedMissed)
-      fill(color(0, 0, 100));
+    fill(this.stroke.get(this.getState()));
     if (this.isDragged())
       fill(color(200, 0, 0));
     text(this.text, this.shape.pos.x + 5, this.shape.pos.y + 5, this.shape.dim.x - 10, this.shape.dim.y - 10);
@@ -239,6 +260,10 @@ class DummyCircleUiComponent extends CircleUiComponent {
     this.text = "Hello world ! I'm a circle";
     this.counter = 0;
     this.locked = false;
+    this.stroke.set(UiComState.Hovered, color(0, 100, 0));
+    this.stroke.set(UiComState.Pressed, color(100, 0, 0));
+    this.stroke.set(UiComState.PressedMissed, color(0, 0, 100));
+    this.stroke.set(UiComState.Hovered, color(0, 100, 0));
   }
 
   clickEvent(mouse) {
@@ -254,13 +279,7 @@ class DummyCircleUiComponent extends CircleUiComponent {
   drawComponent() {
     super.drawComponent();
     strokeWeight(0);
-    fill(this.stroke);
-    if (this.getState() == UiComState.Hovered)
-      fill(color(0, 100, 0));
-    if (this.getState() == UiComState.Pressed)
-      fill(color(100, 0, 0));
-    if (this.getState() == UiComState.PressedMissed)
-      fill(color(0, 0, 100));
+    fill(this.stroke.get(this.getState()));
     if (this.isDragged())
       fill(color(200, 0, 0));
     var x = sqrt(2) * this.shape.rad;
