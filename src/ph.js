@@ -100,6 +100,13 @@ class GlobalForce extends AbstractForce {
     super();
     // physic
     this.children = [];
+    // visual
+    this.fieldStepSize = 20;
+  }
+
+  // to override
+  getField(pos) {
+    return new Vector();
   }
 
   // to override
@@ -114,16 +121,19 @@ class GlobalForce extends AbstractForce {
     });
   }
 
+  drawFieldPart(pos, force) {
+    var fEnd = force.add(pos);
+    drawArrow(pos, fEnd, 5);
+  }
+
   drawVector() {
     strokeWeight(this.strokeWeight);
     stroke(this.stroke);
-    var step = 40;
-    var loc = new Localised();
-    for (loc.pos.x = 0; loc.pos.x < width; loc.pos.x += step) {
-      for (loc.pos.y = 0; loc.pos.y < height; loc.pos.y += step) {
-        var f = this.getForce(loc);
-        var fEnd = f.add(loc.pos);
-        drawArrow(loc.pos, fEnd, 5);
+    var pos = new Vector();
+    for (pos.x = 0; pos.x < width; pos.x += this.fieldStepSize) {
+      for (pos.y = 0; pos.y < height; pos.y += this.fieldStepSize) {
+        var f = this.getField(pos);
+        this.drawFieldPart(pos, f);
       }
     }
   }
@@ -140,10 +150,12 @@ class GlobalGravity extends GlobalForce {
     this.stroke = color(50, 100, 200);
   }
 
+  getField(pos) {
+    return this.vector;
+  }
+
   getForce(mobile) {
-    if (mobile.mass == null)
-      return this.vector;
-    return this.vector.scale(mobile.mass);
+    return this.getField(mobile.pos).scale(mobile.mass);
   }
 }
 
@@ -152,38 +164,52 @@ class FakeElectricField extends GlobalForce {
   // vector : Vector
   constructor(vector = new Vector()) {
     super();
+    // vector visualisation
+    this.fieldStepSize = 10;
+    this.logFieldScale = 2;
+    this.drawArrows = true;
+    this.pixelate = false;
   }
 
   coulomb(pa, pb, qa, qb) {
     var ba = pa.sub(pb);
     var baLength = ba.length();
-    ba.normalizeInplace();
-    var scale = 10000 * (qa * qb) / (baLength * baLength);
-    return ba.scaleInplace(scale);
+    if (baLength > 0) {
+      ba.normalizeInplace();
+      var scale = 10000 * (qa * qb) / (baLength * baLength);
+      return ba.scaleInplace(scale);
+    } else {
+      return new Vector();
+    }
   }
 
-  getForce(mobile) {
-    if (mobile.electricCharge == null)
-      return new Vector();
+  getField(pos) {
     var fAccumulator = new Vector();
     var superForce = this;
     this.children.forEach(function(child) {
-      if (mobile != child) {
-        fAccumulator.addInplace(superForce.coulomb(mobile.pos, child.pos, mobile.electricCharge, child.electricCharge));
-      }
+      fAccumulator.addInplace(superForce.coulomb(pos, child.pos, 1, child.electricCharge));
     });
     return fAccumulator;
   }
 
-  drawVector() {
-    strokeWeight(this.strokeWeight);
-    stroke(this.stroke);
-    var superForce = this;
-    this.children.forEach(function(child) {
-      var f = superForce.getForce(child);
-      var fEnd = f.add(child.pos);
-      drawArrow(child.pos, fEnd, 5);
-    });
+  getForce(mobile) {
+    return this.getField(mobile.pos).scale(mobile.electricCharge);
+  }
+
+  drawFieldPart(pos, force) {
+    if (this.drawArrows) {
+      var length = force.length();
+      force.scaleInplace(this.logFieldScale * log(length) / length);
+      super.drawFieldPart(pos, force);
+    }
+    if (this.pixelate) {
+      var hs = floor(this.fieldStepSize / 2);
+      var hue = log(force.length()) / 6;
+      var color = hslToRgb(hue, 1, 0.5);
+      fill(color[0], color[1], color[2]);
+      strokeWeight(0);
+      rect(pos.x - hs, pos.y - hs, this.fieldStepSize,  this.fieldStepSize);
+    }
   }
 }
 
