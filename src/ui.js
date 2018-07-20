@@ -221,7 +221,6 @@ class DummyRectangleUiComponent extends RectangleUiComponent {
     this.stroke.set(UiComState.Hovered, color(0, 100, 0));
     this.stroke.set(UiComState.Pressed, color(100, 0, 0));
     this.stroke.set(UiComState.PressedMissed, color(0, 0, 100));
-    this.stroke.set(UiComState.Hovered, color(0, 100, 0));
   }
 
   clickEvent(mouse) {
@@ -263,7 +262,6 @@ class DummyCircleUiComponent extends CircleUiComponent {
     this.stroke.set(UiComState.Hovered, color(0, 100, 0));
     this.stroke.set(UiComState.Pressed, color(100, 0, 0));
     this.stroke.set(UiComState.PressedMissed, color(0, 0, 100));
-    this.stroke.set(UiComState.Hovered, color(0, 100, 0));
   }
 
   clickEvent(mouse) {
