@@ -228,6 +228,9 @@ class DummyRectangleUiComponent extends RectangleUiComponent {
     this.fill.set(UiComState.Hovered, color(200));
     this.fill.set(UiComState.Pressed, color(150));
     this.fill.set(UiComState.PressedMissed, color(200));
+    this.stroke.set(UiComState.Hovered, color(0, 100, 0));
+    this.stroke.set(UiComState.Pressed, color(100, 0, 0));
+    this.stroke.set(UiComState.PressedMissed, color(0, 0, 100));
   }
 
   clickEvent(mouse) {
@@ -270,9 +273,6 @@ class CircleUiComponent extends AbstractUiComponent {
   // rad : number
   constructor(pos, rad) {
     super(new Circle(pos, rad));
-    this.fill.set(UiComState.Hovered, color(200));
-    this.fill.set(UiComState.Pressed, color(150));
-    this.fill.set(UiComState.PressedMissed, color(200));
   }
 }
 
@@ -284,10 +284,12 @@ class DummyCircleUiComponent extends CircleUiComponent {
     this.text = "Hello world ! I'm a circle";
     this.counter = 0;
     this.locked = false;
+    this.fill.set(UiComState.Hovered, color(200));
+    this.fill.set(UiComState.Pressed, color(150));
+    this.fill.set(UiComState.PressedMissed, color(200));
     this.stroke.set(UiComState.Hovered, color(0, 100, 0));
     this.stroke.set(UiComState.Pressed, color(100, 0, 0));
     this.stroke.set(UiComState.PressedMissed, color(0, 0, 100));
-    this.stroke.set(UiComState.Hovered, color(0, 100, 0));
   }
 
   clickEvent(mouse) {
@@ -304,8 +306,7 @@ class DummyCircleUiComponent extends CircleUiComponent {
     super.drawComponent();
     strokeWeight(0);
     fill(this.stroke.get(this.getState()));
-    if (this.isDragged())
-      fill(color(200, 0, 0));
+    noSmooth();
     var x = sqrt(2) * this.shape.rad;
     text(this.text, this.shape.pos.x - x / 2, this.shape.pos.y - x / 2, x, x);
   }

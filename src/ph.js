@@ -213,6 +213,51 @@ class FakeElectricField extends GlobalForce {
   }
 }
 
+class ColideForce extends GlobalForce {
+  // vector : Vector
+  constructor(vector = new Vector()) {
+    super();
+  }
+
+  getField(pos) {
+    return new Vector();
+  }
+
+  // Force from b to a
+  // a, b : Mobile
+  colidePair(a, b) {
+    // if a colide b : return collide force
+    // use collisionSolver
+    return new Vector();
+  }
+
+  getForce(mobile) {
+    var fAccumulator = new Vector();
+    var superForce = this;
+    // TODO select only close childs with quadtree optimization
+    this.children.forEach(function(child) {
+      fAccumulator.addInplace(superForce.colidePair(mobile, child));
+    });
+    return fAccumulator;
+  }
+
+  drawFieldPart(pos, force) {
+    if (this.drawArrows) {
+      var length = force.length();
+      force.scaleInplace(this.logFieldScale * log(length) / length);
+      super.drawFieldPart(pos, force);
+    }
+    if (this.pixelate) {
+      var hs = floor(this.fieldStepSize / 2);
+      var hue = log(force.length()) / 6;
+      var color = hslToRgb(hue, 1, 0.5);
+      fill(color[0], color[1], color[2]);
+      strokeWeight(0);
+      rect(pos.x - hs, pos.y - hs, this.fieldStepSize,  this.fieldStepSize);
+    }
+  }
+}
+
 class LocalForce extends AbstractForce {
   // mobile : object
   //         attributes pos : vector, spd : vector, mass : number
@@ -478,18 +523,20 @@ function drawArrow(a, b, l) {
   line(b.x, b.y, arrowSegEnd2.x, arrowSegEnd2.y);
 }
 
-
+// TODO improve memory usage
+// ma, mb : number
+// via, via : Vector
 function collisionSolver(ma, mb, via, vib) {
   var alpha = mb / ma;
-  var vfa = ((1 - alpha) * via + 2 * alpha * vib ) / (alpha + 1);
-  var vfb = (2 * via + (alpha - 1) * vib) / (alpha + 1);
+  var vfa = (via.scale(1 - alpha).addInplace(vib.scale(2 * alpha))).scaleInplace(1/(alpha + 1));
+  var vfb = (via.scale(2).addInplace(vib.scale(alpha - 1))).scaleInplace(1/(alpha + 1));
   // test
-  var iim = ma * via + mb * vib;
-  var fim = ma * vfa + mb * vfb;
-  var ien = ma * via * via / 2 + mb * vib * vib / 2;
-  var fen = ma * vfa * vfa / 2 + mb * vfb * vfb / 2;
-  console.assert(abs(iim - fim) < 0.0000001, "impulse not conserved", iim, fim);
-  console.assert(abs(ien == fen) < 0.0000001, "energie not conserved", ien, fen);
+  var iim = via.scale(ma).add(vib.scale(mb));
+  var fim = vfa.scale(ma).add(vfb.scale(mb));
+  var ien = ma * via.length() * via.length() / 2 + mb * vib.length() * vib.length() / 2;
+  var fen = ma * vfa.length() * vfa.length() / 2 + mb * vfb.length() * vfb.length() / 2;
+  console.assert(iim.sub(fim).length() < 0.0000001, "impulse not conserved", iim, fim);
+  console.assert(abs(ien - fen) < 0.0000001, "energie not conserved", ien, fen);
   // test
   return [vfa, vfb];
 }
