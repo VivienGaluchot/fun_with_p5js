@@ -114,6 +114,10 @@ class AbstractUiComponent {
     this.stroke = new StateDependentValue(color(50));
     this.strokeWeight = new StateDependentValue(1);
     this.textSize = new StateDependentValue(15);
+    this.textColor = new StateDependentValue(color(50));
+    this.textFont = "Helvetica";
+    this.textHorizAlign = RIGHT; // LEFT, CENTER, or RIGHT
+    this.textVertAlign = TOP; // TOP, BOTTOM, CENTER, or BASELINE
   }
 
   getState() {
@@ -152,7 +156,10 @@ class AbstractUiComponent {
     fill(this.fill.get(this.getState()));
     stroke(this.stroke.get(this.getState()));
     strokeWeight(this.strokeWeight.get(this.getState()));
+    textFont(this.textFont);
     textSize(this.textSize.get(this.getState()));
+    textAlign(this.textHorizAlign, this.textVertAlign);
+    smooth();
     this.shape.draw();
   }
 
@@ -218,10 +225,9 @@ class DummyRectangleUiComponent extends RectangleUiComponent {
     this.text = "Hello world !";
     this.counter = 0;
     this.locked = false;
-    this.stroke.set(UiComState.Hovered, color(0, 100, 0));
-    this.stroke.set(UiComState.Pressed, color(100, 0, 0));
-    this.stroke.set(UiComState.PressedMissed, color(0, 0, 100));
-    this.stroke.set(UiComState.Hovered, color(0, 100, 0));
+    this.fill.set(UiComState.Hovered, color(200));
+    this.fill.set(UiComState.Pressed, color(150));
+    this.fill.set(UiComState.PressedMissed, color(200));
   }
 
   clickEvent(mouse) {
@@ -237,9 +243,24 @@ class DummyRectangleUiComponent extends RectangleUiComponent {
   drawComponent() {
     super.drawComponent();
     strokeWeight(0);
-    fill(this.stroke.get(this.getState()));
-    if (this.isDragged())
-      fill(color(200, 0, 0));
+    noSmooth();
+    fill(this.textColor.get(this.getState()));
+    text(this.text, this.shape.pos.x + 5, this.shape.pos.y + 5, this.shape.dim.x - 10, this.shape.dim.y - 10);
+  }
+}
+
+class Label extends RectangleUiComponent {
+  // pos, dim : Vector
+  constructor(pos, dim) {
+    super(pos, dim);
+    this.text = "Hello world !";
+  }
+
+  drawComponent() {
+    super.drawComponent();
+    strokeWeight(0);
+    noSmooth();
+    fill(this.textColor.get(this.getState()));
     text(this.text, this.shape.pos.x + 5, this.shape.pos.y + 5, this.shape.dim.x - 10, this.shape.dim.y - 10);
   }
 }
@@ -249,6 +270,9 @@ class CircleUiComponent extends AbstractUiComponent {
   // rad : number
   constructor(pos, rad) {
     super(new Circle(pos, rad));
+    this.fill.set(UiComState.Hovered, color(200));
+    this.fill.set(UiComState.Pressed, color(150));
+    this.fill.set(UiComState.PressedMissed, color(200));
   }
 }
 
