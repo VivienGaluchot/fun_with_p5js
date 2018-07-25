@@ -116,7 +116,7 @@ class AbstractUiComponent {
     this.textSize = new StateDependentValue(15);
     this.textColor = new StateDependentValue(color(50));
     this.textFont = "Helvetica";
-    this.textHorizAlign = RIGHT; // LEFT, CENTER, or RIGHT
+    this.textHorizAlign = LEFT; // LEFT, CENTER, or RIGHT
     this.textVertAlign = TOP; // TOP, BOTTOM, CENTER, or BASELINE
   }
 

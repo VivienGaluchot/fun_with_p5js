@@ -8,6 +8,11 @@ class PhysicEnvironment extends AbstractUiComponent {
     this.lastDrawMs = 0;
   }
 
+  clean() {
+    this.children = [];
+    this.forces = [];
+  }
+
   reachStability(maxSpeed) {
     console.log("ReachingStability");
     var next = true;
@@ -389,8 +394,8 @@ class Ball extends CircleUiComponent {
     this.spd = spd;
     this.mass = 1;
     this.electricCharge = 1;
-    this.fAccumulator = new Vector(0, 0);
-    this.canvasBouded = true;
+    this.bounce = 0.5;
+    this.canvasBounded = true;
     // interaction
     this.dragMouse = null;
     this.dragTension = 100;
@@ -406,6 +411,8 @@ class Ball extends CircleUiComponent {
     this.pastStrokeWeight = 1;
     this.pastMaxLength = 10;
     this.pastDots = [];
+    // computation
+    this.fAccumulator = new Vector(0, 0);
   }
 
   // f : Vector
@@ -431,22 +438,22 @@ class Ball extends CircleUiComponent {
     this.spd.addInplace(acc.scale(timeInS));
     this.pos.addInplace(this.spd.scale(timeInS));
 
-    if (this.canvasBouded) {
+    if (this.canvasBounded) {
       if (this.pos.x - this.shape.rad < 0) {
         this.pos.x = this.shape.rad;
-        this.spd.x = 0;
+        this.spd.x = -1 * this.bounce * this.spd.x;
       }
       if (this.pos.x + this.shape.rad > width) {
         this.pos.x = width - this.shape.rad;
-        this.spd.x = 0;
+        this.spd.x = -1 * this.bounce * this.spd.x;
       }
       if (this.pos.y - this.shape.rad < 0) {
         this.pos.y = this.shape.rad;
-        this.spd.y = 0;
+        this.spd.y = -1 * this.bounce * this.spd.y;
       }
       if (this.pos.y + this.shape.rad > height) {
         this.pos.y = height - this.shape.rad;
-        this.spd.y = 0;
+        this.spd.y = -1 * this.bounce * this.spd.y;
       }
     }
 

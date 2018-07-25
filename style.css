@@ -1,0 +1,29 @@
+html, body {
+  background-color:  #f0f0f0;
+  color: #0f0f0f;
+  margin: 0;
+  height: 100%;
+  align-items: center;
+  text-align: center;
+  font-family: monospace;
+}
+h1 {
+  margin: 0;
+  font-size: large;
+  line-height: 3em;
+  z-index: 1;
+}
+.part{
+  margin: 10px;
+}
+#sketch-holder {
+  border: 1px solid #0f0f0f;
+  margin-left: 5%;
+  width: 90%;
+  height: 500px;
+}
+#footer {
+  margin: 20px 0px 0px 0px;
+  padding: 2px;
+  background-color:  #a0a0a0;
+}
