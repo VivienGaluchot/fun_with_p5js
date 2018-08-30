@@ -1,10 +1,18 @@
-
 /* Usable types */
 
 var baseTypes = Object.freeze({
-  bool   : {value: 0, name: "bool"},
-  number : {value: 1, name: "number"},
-  string : {value: 2, name: "string"},
+  bool: {
+    value: 0,
+    name: "bool"
+  },
+  number: {
+    value: 1,
+    name: "number"
+  },
+  string: {
+    value: 2,
+    name: "string"
+  },
 })
 
 

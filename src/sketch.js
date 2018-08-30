@@ -7,6 +7,7 @@ var uiTest;
 
 var playPause;
 var playing;
+
 function switchPlayPause() {
   if (playing) {
     noLoop();
@@ -17,6 +18,7 @@ function switchPlayPause() {
   }
   setPlayPauseContent();
 }
+
 function setPlayPauseContent() {
   if (playing) {
     playPause.textContent = "Pause";

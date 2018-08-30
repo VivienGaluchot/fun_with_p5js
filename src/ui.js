@@ -1,8 +1,8 @@
 UiComState = Object.freeze({
-  Idle : 0,
-  Hovered : 1,
-  Pressed : 2,
-  PressedMissed : 3
+  Idle: 0,
+  Hovered: 1,
+  Pressed: 2,
+  PressedMissed: 3
 });
 
 class StateDependentValue {
@@ -193,7 +193,11 @@ class AbstractUiComponent {
       this.dragEvent(mouse, this.lastInputs.mouse);
     if (this.stateMachine.endDragEventFlag)
       this.endDrag(mouse);
-    this.lastInputs = {mouse: mouse, pressed: pressed, contains: contains};
+    this.lastInputs = {
+      mouse: mouse,
+      pressed: pressed,
+      contains: contains
+    };
   }
 
   draw() {
@@ -208,7 +212,9 @@ class OmniUiComponent extends AbstractUiComponent {
   constructor() {
     super(null);
   }
-  contains(a) { return true }
+  contains(a) {
+    return true
+  }
 }
 
 class RectangleUiComponent extends AbstractUiComponent {

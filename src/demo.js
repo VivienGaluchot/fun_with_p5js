@@ -16,8 +16,8 @@ class Demo {
     var friction = new LocalFriction(ball1, 0.1);
     this.env.forces.push(friction);
 
-    this.env.forces.push(new Spring(ball1, new Localised(new Vector( width / 6, height / 2)), 80, 10));
-    this.env.forces.push(new Spring(ball1, new Localised(new Vector( 2 * width / 6, height / 2)), 80, 10));
+    this.env.forces.push(new Spring(ball1, new Localised(new Vector(width / 6, height / 2)), 80, 10));
+    this.env.forces.push(new Spring(ball1, new Localised(new Vector(2 * width / 6, height / 2)), 80, 10));
 
     // ball2
     var ball2 = new Ball(new Vector(width / 4, height / 2 + ballSpace));
@@ -55,12 +55,14 @@ class Demo {
 
 
     // right
-    var drawGrid = {x: 5*width/8,
-      y: height/4,
-      w: width/4,
-      h: height/2,
+    var drawGrid = {
+      x: 5 * width / 8,
+      y: height / 4,
+      w: width / 4,
+      h: height / 2,
       r: 3,
-      c: 5};
+      c: 5
+    };
     var generatedBalls = [];
     for (var i = 0; i < drawGrid.r; i++) {
       for (var j = 0; j < drawGrid.c; j++) {
@@ -83,8 +85,7 @@ class Demo {
             globalEnv.forces.push(link);
           } else if (random(100) < 85) {
             var link = new SpringMobileMobile(ball, el, 200, 5);
-            link.drawSymbol = function() {
-            }
+            link.drawSymbol = function() {}
             globalEnv.forces.push(link);
           }
         });

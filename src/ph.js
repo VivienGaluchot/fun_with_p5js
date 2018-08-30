@@ -17,7 +17,7 @@ class PhysicEnvironment extends AbstractUiComponent {
     console.log("ReachingStability");
     var next = true;
     var step = 0;
-    while(next) {
+    while (next) {
       if (step % 200 == 0)
         console.log("step", step)
       this.animate(0.1);
@@ -121,7 +121,7 @@ class GlobalForce extends AbstractForce {
 
   apply() {
     var superForce = this;
-    this.children.forEach(function(mobile){
+    this.children.forEach(function(mobile) {
       mobile.applyForce(superForce.getForce(mobile));
     });
   }
@@ -213,7 +213,7 @@ class FakeElectricField extends GlobalForce {
       var color = hslToRgb(hue, 1, 0.5);
       fill(color[0], color[1], color[2]);
       strokeWeight(0);
-      rect(pos.x - hs, pos.y - hs, this.fieldStepSize,  this.fieldStepSize);
+      rect(pos.x - hs, pos.y - hs, this.fieldStepSize, this.fieldStepSize);
     }
   }
 }
@@ -258,7 +258,7 @@ class ColideForce extends GlobalForce {
       var color = hslToRgb(hue, 1, 0.5);
       fill(color[0], color[1], color[2]);
       strokeWeight(0);
-      rect(pos.x - hs, pos.y - hs, this.fieldStepSize,  this.fieldStepSize);
+      rect(pos.x - hs, pos.y - hs, this.fieldStepSize, this.fieldStepSize);
     }
   }
 }
@@ -428,7 +428,7 @@ class Ball extends CircleUiComponent {
       this.applyForce(dragForce);
     }
 
-    var acc = this.fAccumulator.scale(1/this.mass);
+    var acc = this.fAccumulator.scale(1 / this.mass);
     this.fAccumulator.set(0, 0);
 
     if (this.startDragPos != null) {
@@ -476,7 +476,7 @@ class Ball extends CircleUiComponent {
   drawComponent() {
     if (this.visible) {
       for (var i = 1; i < this.pastDots.length; i++) {
-        var a = this.pastDots[i-1];
+        var a = this.pastDots[i - 1];
         var b = this.pastDots[i];
         strokeWeight(this.pastStrokeWeight);
         stroke(this.pastStroke);
@@ -496,8 +496,8 @@ function drawZwigs(a, b, n, w) {
     //        d         -|
     //    /   |   \      | h
     //  a --- c --- b   -|
-    var ac = b.sub(a).scaleInplace(1/2);
-    var cd = ac.rotate(PI/2).normalizeInplace().scale(h);
+    var ac = b.sub(a).scaleInplace(1 / 2);
+    var cd = ac.rotate(PI / 2).normalizeInplace().scale(h);
     var ad = ac.add(cd);
     var d = ad.add(a);
     // ad
@@ -524,8 +524,8 @@ function drawZwigs(a, b, n, w) {
 function drawArrow(a, b, l) {
   var norm = b.sub(a).normalize();
   line(a.x, a.y, b.x, b.y);
-  var arrowSegEnd1 = norm.scale(l).rotateInplace(3 * PI/4).add(b);
-  var arrowSegEnd2 = norm.scale(l).rotateInplace(-3 * PI/4).add(b);
+  var arrowSegEnd1 = norm.scale(l).rotateInplace(3 * PI / 4).add(b);
+  var arrowSegEnd2 = norm.scale(l).rotateInplace(-3 * PI / 4).add(b);
   line(b.x, b.y, arrowSegEnd1.x, arrowSegEnd1.y);
   line(b.x, b.y, arrowSegEnd2.x, arrowSegEnd2.y);
 }
@@ -535,8 +535,8 @@ function drawArrow(a, b, l) {
 // via, via : Vector
 function collisionSolver(ma, mb, via, vib) {
   var alpha = mb / ma;
-  var vfa = (via.scale(1 - alpha).addInplace(vib.scale(2 * alpha))).scaleInplace(1/(alpha + 1));
-  var vfb = (via.scale(2).addInplace(vib.scale(alpha - 1))).scaleInplace(1/(alpha + 1));
+  var vfa = (via.scale(1 - alpha).addInplace(vib.scale(2 * alpha))).scaleInplace(1 / (alpha + 1));
+  var vfb = (via.scale(2).addInplace(vib.scale(alpha - 1))).scaleInplace(1 / (alpha + 1));
   // test
   var iim = via.scale(ma).add(vib.scale(mb));
   var fim = vfa.scale(ma).add(vfb.scale(mb));

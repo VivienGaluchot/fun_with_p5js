@@ -1,5 +1,5 @@
 class Vector {
-  constructor(x = 0, y = 0){
+  constructor(x = 0, y = 0) {
     this.set(x, y);
   }
 
@@ -15,7 +15,7 @@ class Vector {
 
   // x : number
   // y : number
-  set(x = 0, y = 0)  {
+  set(x = 0, y = 0) {
     this.x = x;
     this.y = y;
   }
@@ -117,7 +117,9 @@ class Localised {
 class AbstractShape {
   constructor() {}
   // a : Vector
-  contains(a) { return false; }
+  contains(a) {
+    return false;
+  }
   draw() {}
 }
 
@@ -171,7 +173,7 @@ class Matrix {
 
   // f : function(currentValue, row, col), return : number to update
   forEach(f) {
-  for (var row = 0; row < this.rows; row++) {
+    for (var row = 0; row < this.rows; row++) {
       for (var col = 0; col < this.cols; col++) {
         this.values[row][col] = f(this.values[row][col], row, col);
       }

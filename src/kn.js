@@ -1,4 +1,3 @@
-
 /* Atomic elements               */
 /* Should not be manipuled alone */
 
@@ -51,7 +50,7 @@ class In {
     if (this.out != null) {
       var currentIn = this;
       this.out.ins = this.out.ins.filter(function(v) {
-          return v !== currentIn
+        return v !== currentIn
       })
     }
     this.out = out;

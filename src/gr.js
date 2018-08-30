@@ -2,61 +2,123 @@ var sketchElement;
 var omni;
 
 var db = Object.freeze({
-  categories: [
-    { name: "cat1",
-      hue: 1 / 6,
-      children: [
-        {name: "cat1-ch1", desc: "cat1-ch1-desc"},
-        {name: "cat1-ch2", desc: "cat1-ch2-desc"}
-      ]
-    }, { name: "cat2",
-      hue: 2 / 6,
-      children: [
-        {name: "cat2-ch1", desc: "cat2-ch1-desc"},
-        {name: "cat2-ch2", desc: "cat2-ch2-desc"},
-        {name: "cat2-ch3", desc: "cat2-ch3-desc"}
-      ]
-    }, { name: "cat3",
-      hue: 3 / 6,
-      children: [
-        {name: "cat3-ch1", desc: "cat3-ch1-desc"},
-        {name: "cat3-ch2", desc: "cat3-ch2-desc"},
-        {name: "cat3-ch3", desc: "cat3-ch3-desc"},
-        {name: "cat3-ch4", desc: "cat3-ch4-desc"},
-        {name: "cat3-ch5", desc: "cat3-ch5-desc"}
-      ]
-    }, { name: "cat4",
-      hue: 4 / 6,
-      children: [
-        {name: "cat4-ch1", desc: "cat4-ch1-desc"},
-        {name: "cat4-ch2", desc: "cat4-ch2-desc"},
-        {name: "cat4-ch3", desc: "cat4-ch3-desc"}
-      ]
-    }, { name: "cat5",
-      hue: 5 / 6,
-      children: [
-        {name: "cat5-ch1", desc: "cat5-ch1-desc"},
-        {name: "cat5-ch2", desc: "cat5-ch2-desc"},
-        {name: "cat5-ch3", desc: "cat5-ch3-desc"}
-      ]
-    }, { name: "cat6",
-      hue: 6 / 6,
-      children: [
-        {name: "cat6-ch1", desc: "cat6-ch1-desc"},
-        {name: "cat6-ch2", desc: "cat6-ch2-desc"},
-        {name: "cat6-ch3", desc: "cat6-ch3-desc"}
-      ]
-    }
-  ]
+  categories: [{
+    name: "cat1",
+    hue: 1 / 6,
+    children: [{
+        name: "cat1-ch1",
+        desc: "cat1-ch1-desc"
+      },
+      {
+        name: "cat1-ch2",
+        desc: "cat1-ch2-desc"
+      }
+    ]
+  }, {
+    name: "cat2",
+    hue: 2 / 6,
+    children: [{
+        name: "cat2-ch1",
+        desc: "cat2-ch1-desc"
+      },
+      {
+        name: "cat2-ch2",
+        desc: "cat2-ch2-desc"
+      },
+      {
+        name: "cat2-ch3",
+        desc: "cat2-ch3-desc"
+      }
+    ]
+  }, {
+    name: "cat3",
+    hue: 3 / 6,
+    children: [{
+        name: "cat3-ch1",
+        desc: "cat3-ch1-desc"
+      },
+      {
+        name: "cat3-ch2",
+        desc: "cat3-ch2-desc"
+      },
+      {
+        name: "cat3-ch3",
+        desc: "cat3-ch3-desc"
+      },
+      {
+        name: "cat3-ch4",
+        desc: "cat3-ch4-desc"
+      },
+      {
+        name: "cat3-ch5",
+        desc: "cat3-ch5-desc"
+      }
+    ]
+  }, {
+    name: "cat4",
+    hue: 4 / 6,
+    children: [{
+        name: "cat4-ch1",
+        desc: "cat4-ch1-desc"
+      },
+      {
+        name: "cat4-ch2",
+        desc: "cat4-ch2-desc"
+      },
+      {
+        name: "cat4-ch3",
+        desc: "cat4-ch3-desc"
+      }
+    ]
+  }, {
+    name: "cat5",
+    hue: 5 / 6,
+    children: [{
+        name: "cat5-ch1",
+        desc: "cat5-ch1-desc"
+      },
+      {
+        name: "cat5-ch2",
+        desc: "cat5-ch2-desc"
+      },
+      {
+        name: "cat5-ch3",
+        desc: "cat5-ch3-desc"
+      }
+    ]
+  }, {
+    name: "cat6",
+    hue: 6 / 6,
+    children: [{
+        name: "cat6-ch1",
+        desc: "cat6-ch1-desc"
+      },
+      {
+        name: "cat6-ch2",
+        desc: "cat6-ch2-desc"
+      },
+      {
+        name: "cat6-ch3",
+        desc: "cat6-ch3-desc"
+      }
+    ]
+  }]
 });
 
 // TODO use force fiel or spring between all pair of balls to avoid crossed
 // stable configuration with 4 balls
 function fillPhysicEnvironment(pe, db) {
   var LinkProp = Object.freeze({
-    centerCat: {l: 80, i: 50},
-    catChild: {l: 60, i: 10}
+    centerCat: {
+      l: 80,
+      i: 50
+    },
+    catChild: {
+      l: 60,
+      i: 10
+    }
   });
+
   function pushBall(rad, mass, electricCharge, friction) {
     var ball = new Ball(new Vector(random(width), random(height)));
     ball.pastMaxLength = 0;
@@ -68,6 +130,7 @@ function fillPhysicEnvironment(pe, db) {
     pe.forces.push(new LocalFriction(ball, friction));
     return ball;
   }
+
   function link(a, b, prop, color) {
     var link = new SpringMobileMobile(a, b, prop.l, prop.i);
     link.drawSymbol = function() {
