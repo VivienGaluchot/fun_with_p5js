@@ -6,6 +6,14 @@ class PhysicEnvironment extends AbstractUiComponent {
 
     this.forces = [];
     this.lastDrawMs = 0;
+
+    // lasy evaluation
+    this.maxSpeedEval = null;
+
+    // perf on low movements
+    this.downFrameRatingCounter = 0;
+    this.mouseTilt = false;
+    this.missedTime = 0;
   }
 
   clean() {
@@ -13,20 +21,35 @@ class PhysicEnvironment extends AbstractUiComponent {
     this.forces = [];
   }
 
-  reachStability(maxSpeed) {
+  maxSpeed() {
+    if (this.maxSpeedEval == null) {
+      const reducer = function(accumulator, child) {
+        const speed = child.spd.length();
+        return accumulator > speed ? accumulator : speed;
+      }
+      this.maxSpeedEval = this.children.reduce(reducer, 0);
+    }
+    return this.maxSpeedEval;
+  }
+
+  reachStability(maxSpeed, overSteps=10, maxSteps=10000) {
     console.log("ReachingStability");
     var next = true;
     var step = 0;
-    while (next) {
+    var overStepsLeft = overSteps;
+    while (overStepsLeft > 0 && step < maxSteps) {
       if (step % 200 == 0)
         console.log("step", step)
-      this.animate(0.1);
-      next = this.children.find(function(child) {
-        return child.spd.length() > maxSpeed;
-      });
+      this.animate(0.01);
+      if (this.maxSpeed() <= maxSpeed) {
+        overStepsLeft--;
+      } else {
+        overStepsLeft = overSteps;
+      }
       step++;
-      if (step > 10000)
-        next = false;
+      if (step > maxSteps) {
+        console.log("MaxStep reached");
+      }
     }
     console.log("Done");
   }
@@ -36,6 +59,7 @@ class PhysicEnvironment extends AbstractUiComponent {
     this.forces.forEach(function(force) {
       force.drawComponent();
     });
+    // children are drawn by AbstractUiComponent inheritance
   }
 
   // mouse : Vector
@@ -53,22 +77,44 @@ class PhysicEnvironment extends AbstractUiComponent {
       console.log("warning : time lost", timeDeltaInS);
       timeDeltaInS = 0.1;
     }
+    this.mouseTilt = pressed;
     this.animate(timeDeltaInS);
   }
 
   // timeDeltaInS : number
   animate(timeDeltaInS) {
-    // apply forces
-    var superEnv = this;
-    this.forces.forEach(function(force) {
-      if (force.enabled) {
-        force.apply();
-      }
-    });
-    // animate mobiles
-    this.children.forEach(function(mobile) {
-      mobile.animate(timeDeltaInS);
-    });
+    // if (this.maxSpeed() > 1 || this.mouseTilt) {
+    //   this.downFrameRatingCounter = 0;
+    // }
+
+    this.missedTime = this.missedTime + timeDeltaInS;
+    if (this.downFrameRatingCounter == 0) {
+      this.maxSpeedEval = null;
+      // apply forces
+      var superEnv = this;
+      this.forces.forEach(function(force) {
+        if (force.enabled) {
+          force.apply();
+        }
+      });
+      // animate mobiles
+      var timeDeltaInS = this.missedTime;
+      this.children.forEach(function(mobile) {
+        mobile.animate(timeDeltaInS);
+      });
+      this.missedTime = 0;
+    }
+
+    // if (this.downFrameRatingCounter == 0) {
+    //   // speed > 1 -> counter 80
+    //   //           -> counter 160
+    //   if (this.maxSpeed() > 1)
+    //     this.downFrameRatingCounter = 80;
+    //   else
+    //     this.downFrameRatingCounter = 160;
+    // } else {
+    //   this.downFrameRatingCounter--;
+    // }
   }
 }
 
@@ -385,20 +431,23 @@ class RigidLink extends SpringMobileMobile {
 
 // ---- Mobiles ----
 
+var glbI  = 0;
+
 class Ball extends CircleUiComponent {
   // pos : Vector
-  constructor(pos = new Vector(), spd = new Vector()) {
+  constructor(pos = new Vector(), spd = new Vector(), acc = new Vector()) {
     super(pos, 10);
     // physic
     this.pos = this.shape.pos;
     this.spd = spd;
+    this.acc = acc;
     this.mass = 1;
     this.electricCharge = 1;
     this.bounce = 0.5;
     this.canvasBounded = true;
     // interaction
     this.dragMouse = null;
-    this.dragTension = 100;
+    this.dragTension = 50;
     // style
     this.visible = true;
     this.fill.setAll(color(220));
@@ -420,23 +469,30 @@ class Ball extends CircleUiComponent {
     this.fAccumulator.addInplace(f);
   }
 
-  // timeInS : number
-  animate(timeInS) {
+  // diffTimeInS : number
+  animate(diffTimeInS) {
     if (this.dragMouse != null) {
       var deltaPos = this.dragMouse.sub(this.pos);
       var dragForce = deltaPos.normalize().scale(deltaPos.length() * this.dragTension);
       this.applyForce(dragForce);
     }
 
-    var acc = this.fAccumulator.scale(1 / this.mass);
+    var lastAcc = this.acc.clone();
+    var lastSpd = this.spd.clone();
+    var lastPos = this.pos.clone();
+
+    this.acc.copy(this.fAccumulator.scaleInplace(1 / this.mass));
     this.fAccumulator.set(0, 0);
 
-    if (this.startDragPos != null) {
-      this.pos.copy(this.startDragPos.add(this.dragMouse.sub(this.startDragMouse)));
-    }
+    // Euler method
+    this.pos.copy(lastPos.addInplace(lastSpd.scale(diffTimeInS)));
+    this.spd.copy(lastSpd.addInplace(this.acc.scale(diffTimeInS)));
 
-    this.spd.addInplace(acc.scale(timeInS));
-    this.pos.addInplace(this.spd.scale(timeInS));
+    // Vernet method, spd with wrong value
+    // var midTime = diffTimeInS / 2.0;
+    // var midSpd = lastSpd.addInplace(lastAcc.scaleInplace(midTime));
+    // this.pos.copy(lastPos.addInplace(midSpd.scale(diffTimeInS)));
+    // this.spd.copy(midSpd.addInplace(this.acc.scale(midTime)));
 
     if (this.canvasBounded) {
       if (this.pos.x - this.shape.rad < 0) {

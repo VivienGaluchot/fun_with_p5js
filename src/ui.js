@@ -201,7 +201,8 @@ class AbstractUiComponent {
   }
 
   draw() {
-    this.drawComponent();
+    if (this.visible)
+      this.drawComponent();
     this.children.forEach(function(child) {
       child.draw();
     });

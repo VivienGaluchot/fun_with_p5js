@@ -1,6 +1,3 @@
-var sketchElement;
-var omni;
-
 var db = Object.freeze({
   categories: [{
     name: "cat1",
@@ -105,6 +102,11 @@ var db = Object.freeze({
   }]
 });
 
+var sketchElement;
+var omni;
+var button;
+var pe;
+
 // TODO use force fiel or spring between all pair of balls to avoid crossed
 // stable configuration with 4 balls
 function fillPhysicEnvironment(pe, db) {
@@ -187,14 +189,15 @@ function setup() {
     omni = new OmniUiComponent();
     omni.centerLocation = new Vector(width / 2, height / 2);
 
-    var pe = new PhysicEnvironment();
+    pe = new PhysicEnvironment();
     omni.children.push(pe);
 
     button = new DummyRectangleUiComponent(new Vector(10, 10), new Vector(80, 25));
     button.locked = true;
     button.text = "Stabilize";
     button.clickEvent = function(mouse) {
-      pe.reachStability(5);
+      if (button.visible)
+        pe.reachStability(5);
     }
     omni.children.push(button);
 
@@ -219,5 +222,8 @@ function draw() {
 
     omni.update(mouse, mouseIsPressed);
     omni.draw();
+
+    var enabled = pe.maxSpeed() > 5;
+    button.visible = enabled;
   }
 }
