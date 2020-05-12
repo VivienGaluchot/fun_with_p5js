@@ -1,3 +1,5 @@
 # fun_with_p5js
 
-Test of P5 js front end librarie, live demo : https://viviengaluchot.github.io/fun_with_p5js/index.
+Little tests of the P5 js library.
+
+Live demo : https://viviengaluchot.github.io/fun_with_p5js/index.
